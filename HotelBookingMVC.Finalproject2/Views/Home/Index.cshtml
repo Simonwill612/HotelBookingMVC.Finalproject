@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+@model IEnumerable<HotelBookingMVC.Finalproject2.ViewModels.HotelViewModel>
+
+<form asp-action="Search" method="get" class="form-inline">
+    <div class="form-group">
+        <label for="state">State:</label>
+        <input type="text" name="state" class="form-control" placeholder="Enter state" />
+    </div>
+    <div class="form-group">
+        <label for="city">City:</label>
+        <input type="text" name="city" class="form-control" placeholder="Enter city" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<br />
+
+<!-- Existing table of hotels -->
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Zip Code</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var hotel in Model)
+            {
+                <tr>
+                    <td>@hotel.Name</td>
+                    <td>@hotel.Address</td>
+                    <td>@hotel.City</td>
+                    <td>@hotel.State</td>
+                    <td>@hotel.ZipCode</td>
+                    <td>@hotel.PhoneNumber</td>
+                    <td>@hotel.Email</td>
+                    <td>@hotel.Description</td>
+                    @* <td>
+                        <a asp-action="Details" asp-route-id="@hotel.HotelID">Details</a> |
+                        <a asp-action="Edit" asp-route-id="@hotel.HotelID">Edit</a> |
+                        <a asp-action="Delete" asp-route-id="@hotel.HotelID">Delete</a>
+                    </td> *@
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hotels found matching your search criteria.</p>
+}

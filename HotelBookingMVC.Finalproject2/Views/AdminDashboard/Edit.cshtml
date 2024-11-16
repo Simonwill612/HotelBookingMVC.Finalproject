@@ -1,0 +1,36 @@
+﻿@model HotelBookingMVC.Finalproject2.ViewModels.UserViewModel
+
+<h2>Edit User</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div>
+        <label asp-for="Email"></label>
+        <input asp-for="Email" />
+    </div>
+
+    <div>
+        <label asp-for="EmailConfirmed"></label>
+        <input asp-for="EmailConfirmed" type="checkbox" />
+    </div>
+
+    <div>
+        <label>Roles</label>
+        @foreach (var role in Model.AllRoles)
+        {
+                <div>
+                    <input type="radio" name="Roles" value="@role" @(Model.Roles.Contains(role) ? "checked" : "") />
+                    <label>@role</label>
+                </div>
+        }
+    </div>
+
+    <button type="submit">Save</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

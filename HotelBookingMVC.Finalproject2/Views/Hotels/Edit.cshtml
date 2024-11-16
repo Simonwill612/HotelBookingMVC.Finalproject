@@ -1,0 +1,114 @@
+﻿@model HotelBookingMVC.Finalproject2.ViewModels.HotelViewModel
+
+@{
+    ViewData["Title"] = "Edit Hotel";
+    Layout = "~/Views/Shared/EditHotelsLayout.cshtml";
+
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="bg-light rounded p-4">
+                <h2 class="text-center">Edit Hotel</h2>
+                <hr />
+
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="HotelID" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Address" class="control-label"></label>
+                        <input asp-for="Address" class="form-control" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="City" class="control-label"></label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="State" class="control-label"></label>
+                        <input asp-for="State" class="form-control" />
+                        <span asp-validation-for="State" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="ZipCode" class="control-label"></label>
+                        <input asp-for="ZipCode" class="form-control" />
+                        <span asp-validation-for="ZipCode" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="PhoneNumber" class="control-label"></label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Description" class="control-label"></label>
+                        <textarea asp-for="Description" class="form-control"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <h3>Current Media</h3>
+                    <div class="form-group mb-3">
+                        <div>
+                            @foreach (var media in Model.Media)
+                            {
+                                <div class="media-item">
+                                    @if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image)
+                                    {
+                                        <img src="~/media/hotel/@Model.HotelID/img/@media.FileName" alt="Image" class="img-thumbnail" style="width: 100px; height: auto;" />
+                                    }
+                                    else if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Video)
+                                    {
+                                        <video width="100" controls class="img-thumbnail">
+                                            <source src="~/media/hotel/@Model.HotelID/video/@media.FileName" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    }
+                                    <a asp-action="DeleteMedia" asp-route-mediaId="@media.MediaID" class="btn btn-danger btn-sm">Delete</a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>Upload Additional Images</label>
+                        <input asp-for="ImageFiles" type="file" name="ImageFiles" multiple class="form-control-file" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>Upload Additional Videos</label>
+                        <input asp-for="VideoFiles" type="file" name="VideoFiles" multiple class="form-control-file" />
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

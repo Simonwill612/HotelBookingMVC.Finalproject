@@ -1,0 +1,134 @@
+.ct_find h3 {
+  font-size: 18px;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 2em;
+  letter-spacing: 1px;
+  color: #f53626;
+}
+
+.ct_find h2 {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 48px;
+  text-transform: capitalize;
+}
+
+.ct_find .ct_form {
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
+}
+
+.ct_find .ct_left {
+  width: 20px;
+  color: #189a46;
+}
+
+.ct_find .ct_info {
+  display: grid;
+  grid-template-columns: 20px auto;
+  gap: 20px;
+  row-gap: 2.5rem;
+}
+
+.ct_find .ct_left i {
+  font-size: 22px;
+  display: block;
+  margin-top: 3px;
+}
+
+.ct_find .ct_right h6 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 26px;
+  margin-bottom: 10px;
+}
+
+.ct_find .ct_right p {
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 24px;
+  color: #777;
+  margin-top: 3px;
+}
+
+.ct_find .ct_right p a {
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 24px;
+  color: #777;
+  margin-top: 3px;
+  text-decoration: none;
+  transition: all 0.5s;
+}
+
+.ct_find .ct_right p a:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+  color: #189a46;
+}
+
+.ct_find form input,
+.ct_find form textarea {
+  outline: none;
+  width: 100%;
+  font-size: 16px;
+  color: var(--font-color);
+  padding: 0px 16px;
+  border: 1px solid rgba(147, 107, 232, 0.05);
+  background: rgba(147, 107, 232, 0.05);
+  border-radius: 6px;
+  height: 55px;
+}
+
+.ct_find form textarea {
+  resize: none;
+  min-height: 140px;
+  padding: 12px 16px;
+}
+
+.ct_find form input::placeholder,
+.ct_find form textarea::placeholder {
+  color: #696969;
+}
+
+.ct_find form input:focus,
+.ct_find form textarea:focus {
+  outline: none;
+  border: 1px solid #189a46;
+  box-shadow: none;
+}
+
+.ct_find .ct_form .btn_style {
+  padding: 12px 35px;
+  font-size: 18px;
+  line-height: 28px;
+  text-transform: capitalize;
+  font-weight: 400;
+  border-radius: 10px;
+  text-decoration: none;
+  display: inline-block;
+  background-color: #189a46 !important;
+  border-color: #189a46;
+}
+
+.ct_find .ct_form button {
+  transition: all 0.5s;
+}
+
+.ct_find .ct_form button:hover {
+  background-color: #1b6936 !important;
+}
+
+@media (max-width: 992px) {
+  .ct_find .ct_form {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .ct_map iframe {
+    height: 200px;
+  }
+}

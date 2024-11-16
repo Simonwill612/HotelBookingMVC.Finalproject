@@ -1,0 +1,177 @@
+﻿@model HotelBookingMVC.Finalproject2.ViewModels.OrderViewModel
+
+<h2>Billing Information</h2>
+
+<form id="billingForm">
+    @Html.AntiForgeryToken() <!-- CSRF Token for ASP.NET Core -->
+
+    <div class="form-group">
+        <label for="FirstName">First Name</label>
+        <input type="text" id="FirstName" name="FirstName" class="form-control" value="@Model.FirstName" required />
+    </div>
+    <div class="form-group">
+        <label for="LastName">Last Name</label>
+        <input type="text" id="LastName" name="LastName" class="form-control" value="@Model.LastName" required />
+    </div>
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" id="Email" name="Email" class="form-control" value="@Model.Email" required />
+    </div>
+    <div class="form-group">
+        <label for="Address">Address</label>
+        <input type="text" id="Address" name="Address" class="form-control" value="@Model.Address" required />
+    </div>
+    <div class="form-group">
+        <label for="Address2">Address Line 2</label>
+        <input type="text" id="Address2" name="Address2" class="form-control" value="@Model.Address2" />
+    </div>
+    <div class="form-group">
+        <label for="Country">Country</label>
+        <input type="text" id="Country" name="Country" class="form-control" value="@Model.Country" required />
+    </div>
+    <div class="form-group">
+        <label for="State">State</label>
+        <input type="text" id="State" name="State" class="form-control" value="@Model.State" required />
+    </div>
+    <div class="form-group">
+        <label for="Zip">Zip Code</label>
+        <input type="text" id="Zip" name="Zip" class="form-control" value="@Model.Zip" required />
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="IsShippingSameAsBilling" name="IsShippingSameAsBilling" class="form-check-input" @(Model.IsShippingSameAsBilling ? "checked" : "") />
+        <label for="IsShippingSameAsBilling" class="form-check-label">Shipping address is the same as billing</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" id="SaveInfoForNextTime" name="SaveInfoForNextTime" class="form-check-input" @(Model.SaveInfoForNextTime ? "checked" : "") />
+        <label for="SaveInfoForNextTime" class="form-check-label">Save this information for next time</label>
+    </div>
+
+    <!-- Button to trigger the payment modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#paymentModal">
+        Proceed to Payment
+    </button>
+
+    <!-- Payment modal -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Card Information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="paymentForm">
+                        <div class="form-group">
+                            <label for="CardName">Cardholder Name</label>
+                            <input type="text" id="CardName" name="CardName" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="CardNumber">Card Number</label>
+                            <input type="text" id="CardNumber" name="CardNumber" class="form-control" maxlength="16" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="ExpirationDate">Expiration Date (MM/YY)</label>
+                            <input type="text" id="ExpirationDate" name="ExpirationDate" class="form-control" maxlength="5" placeholder="MM/YY" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="CVV">CVV</label>
+                            <input type="text" id="CVV" name="CVV" class="form-control" maxlength="3" required />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <!-- Button to confirm payment -->
+                    <button type="button" class="btn btn-primary" id="confirmPayment">Confirm Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <!-- Include Bootstrap and jQuery dependencies -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // When "Confirm Payment" button is clicked
+            $('#confirmPayment').on('click', function(event) {
+                event.preventDefault(); // Prevent form submission
+
+                // Get card details
+                var cardName = $('#CardName').val();
+                var cardNumber = $('#CardNumber').val();
+                var expirationDate = $('#ExpirationDate').val();
+                var cvv = $('#CVV').val();
+
+                // Validate card details
+                if (cardNumber.length !== 16 || isNaN(cardNumber)) {
+                    alert('Card number must be 16 digits.');
+                    return;
+                }
+
+                var expDatePattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
+                if (!expDatePattern.test(expirationDate)) {
+                    alert('Expiration date must be in MM/YY format.');
+                    return;
+                }
+
+                if (cvv.length !== 3 || isNaN(cvv)) {
+                    alert('CVV must be 3 digits.');
+                    return;
+                }
+
+                // Collect billing form data manually
+                var billingData = {
+                    firstName: $('#FirstName').val(),
+                    lastName: $('#LastName').val(),
+                    email: $('#Email').val(),
+                    address: $('#Address').val(),
+                    address2: $('#Address2').val(),
+                    country: $('#Country').val(),
+                    state: $('#State').val(),
+                    zip: $('#Zip').val(),
+                    isShippingSameAsBilling: $('#IsShippingSameAsBilling').is(':checked'),
+                    saveInfoForNextTime: $('#SaveInfoForNextTime').is(':checked')
+                };
+
+                // Collect payment data
+                var paymentData = {
+                    cardName: cardName,
+                    cardNumber: cardNumber,
+                    expirationDate: expirationDate,
+                    cvv: cvv
+                };
+
+                // Send data to the server via AJAX
+                $.ajax({
+                    url: '@Url.Action("ProcessPayment", "Cart")',
+                    type: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    data: {
+                        billingInfo: billingData,
+                        paymentInfo: paymentData
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            window.location.href = '/Booking/Confirmation'; // Redirect to confirmation
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while processing the payment. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+}

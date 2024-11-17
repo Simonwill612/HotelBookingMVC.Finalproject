@@ -9,12 +9,12 @@
         public IList<string> Roles { get; set; }
         public IList<string> AllRoles { get; set; }
 
-        public string HotelName { get; set; }
 
         public UserViewModel()
         {
             Roles = new List<string>();
             AllRoles = new List<string>();
+
         }
     }
 }

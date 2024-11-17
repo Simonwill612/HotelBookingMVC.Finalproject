@@ -14,8 +14,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HotelBookingMVC.Finalproject2.Controllers
 {
-    [Authorize]
-    public class RoomsController : Controller
+/*    [Authorize]
+*/    public class RoomsController : Controller
     {
         private readonly HotelBookingDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -375,6 +375,6 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 _logger.LogWarning("No files to save for hotel ID: {RoomID}", roomId);
             }
         }
-       
+
     }
 }

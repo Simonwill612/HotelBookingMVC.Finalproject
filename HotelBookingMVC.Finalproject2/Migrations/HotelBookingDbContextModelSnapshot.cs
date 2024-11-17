@@ -387,11 +387,6 @@ namespace HotelBookingMVC.Finalproject2.Migrations
                     b.Property<int>("QuantityLimit")
                         .HasColumnType("int");
 
-                    b.Property<int>("UsedCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
                     b.HasKey("PromotionID");
 
                     b.HasIndex("HotelID");

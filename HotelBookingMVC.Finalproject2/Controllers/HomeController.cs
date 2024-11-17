@@ -108,14 +108,19 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Search(string state, string city)
+        public async Task<IActionResult> Search(string city = "")
         {
-            // Queryable
-            var hotels = await _context.Hotels
-                                       .Where(h => h.State.Contains(state) && h.City.Contains(city))
-                                       .Include(h => h.HotelMediaDetails)
-                                            .ThenInclude(h => h.Media)
-                                       .ToListAsync();
+            var hotelsQuery = _context.Hotels
+                .Include(h => h.HotelMediaDetails)
+                .ThenInclude(h => h.Media)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(city))
+            {
+                hotelsQuery = hotelsQuery.Where(h => h.City.Contains(city));
+            }
+
+            var hotels = await hotelsQuery.ToListAsync();
 
             var hotelViewModels = hotels.Select(h => new HotelViewModel
             {
@@ -130,18 +135,19 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 Description = h.Description,
                 CreatedAt = h.CreatedAt,
                 UpdatedAt = h.UpdatedAt,
-                //Media = h.Media.ToList()
                 Media = h.HotelMediaDetails
-                        .Select(rmd => new MediaViewModel
-                        {
-                            MediaID = rmd.MediaId,
-                            FileName = rmd.Media.FileName,
-                            FilePath = rmd.Media.FilePath,
-                            MediaType = rmd.Media.MediaType
-                        }).ToList()
+                    .Select(rmd => new MediaViewModel
+                    {
+                        MediaID = rmd.MediaId,
+                        FileName = rmd.Media.FileName,
+                        FilePath = rmd.Media.FilePath,
+                        MediaType = rmd.Media.MediaType
+                    }).ToList()
             }).ToList();
 
-            return View("Index", hotelViewModels); // Make sure this view exists
+            return View("Index", hotelViewModels);
         }
+
+
     }
 }

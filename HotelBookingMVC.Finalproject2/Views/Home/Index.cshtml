@@ -1,18 +1,6 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
-@model IEnumerable<HotelBookingMVC.Finalproject2.ViewModels.HotelViewModel>
+﻿@model IEnumerable<HotelBookingMVC.Finalproject2.ViewModels.HotelViewModel>
 
 <form asp-action="Search" method="get" class="form-inline">
-    <div class="form-group">
-        <label for="state">State:</label>
-        <input type="text" name="state" class="form-control" placeholder="Enter state" />
-    </div>
     <div class="form-group">
         <label for="city">City:</label>
         <input type="text" name="city" class="form-control" placeholder="Enter city" />
@@ -50,11 +38,6 @@
                     <td>@hotel.PhoneNumber</td>
                     <td>@hotel.Email</td>
                     <td>@hotel.Description</td>
-                    @* <td>
-                        <a asp-action="Details" asp-route-id="@hotel.HotelID">Details</a> |
-                        <a asp-action="Edit" asp-route-id="@hotel.HotelID">Edit</a> |
-                        <a asp-action="Delete" asp-route-id="@hotel.HotelID">Delete</a>
-                    </td> *@
                 </tr>
             }
         </tbody>

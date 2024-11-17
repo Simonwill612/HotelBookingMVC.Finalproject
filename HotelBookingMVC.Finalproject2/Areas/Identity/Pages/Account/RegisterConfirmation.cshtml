@@ -9,11 +9,8 @@
     if (@Model.DisplayConfirmAccountLink)
     {
 <p>
-            A verification email has been sent to your inbox: Please visit your email inbox to verify
-</p>    
-<p>
-            <a id="confirm-link" href="/Identity/Account/Login">Back to Login</a>
-</p> 
+            Click hear if you are not a robot: <a id="confirm-link" href="@Model.EmailConfirmationUrl">Confirm your account</a>
+</p>
     }
     else
     {

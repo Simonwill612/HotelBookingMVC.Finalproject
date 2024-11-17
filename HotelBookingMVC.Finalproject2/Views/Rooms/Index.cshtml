@@ -4,11 +4,13 @@
     ViewData["Title"] = "Rooms - " + ViewBag.HotelName;
     Layout = "~/Views/Shared/RoomsLayout.cshtml";
 }
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rooms - Modal Example</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
 
 <div class="container-fluid pt-4 px-4">
     <div class="h-100 p-4">
@@ -59,9 +61,7 @@
                                 <a asp-action="Edit" asp-route-id="@room.RoomID" class="btn btn-success">Edit</a>
                                 <a asp-action="Details" asp-route-id="@room.RoomID" class="btn btn-info">Details</a>
                                 <a asp-action="Delete" asp-route-id="@room.RoomID" class="btn btn-danger">Delete</a>
-                                <form id="add-to-cart-form-@room.RoomID" method="post" style="display:inline;">
-                                    <button type="button" class="btn btn-primary" onclick="openBookingModal('@room.RoomID', '@room.PricePerNight')">Add to Cart</button>
-                                </form>
+                                <button type="button" class="btn btn-primary" onclick="openBookingModal('@room.RoomID', '@room.PricePerNight')">Add to Cart</button>
                             </td>
                         </tr>
                     }
@@ -72,15 +72,17 @@
 </div>
 
 <!-- Booking Modal -->
+
 <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-content">
+                <div class="modal-header">
                 <h5 class="modal-title" id="bookingModalLabel">Book Room</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+
             <div class="modal-body">
                 <form id="booking-form">
                     <div class="form-group">
@@ -96,12 +98,12 @@
                     <button type="button" class="btn btn-primary" onclick="addToCart()">Add to Cart</button>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 <!-- Cart Modal -->
 <div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModalLabel" aria-hidden="true">
@@ -178,3 +180,9 @@
         });
     }
 </script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

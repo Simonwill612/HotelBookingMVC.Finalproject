@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,9 +23,7 @@ builder.Services.AddDbContext<HotelIdentityDBContext>(options =>
 // Configure Identity services
 builder.Services.AddDefaultIdentity<HotelUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>() // Add roles support
-    .AddEntityFrameworkStores<HotelIdentityDBContext>()
-    .AddDefaultUI()
-    .AddDefaultTokenProviders();
+    .AddEntityFrameworkStores<HotelIdentityDBContext>();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -64,10 +61,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.SlidingExpiration = true;
 });
-builder.Services.Configure<FormOptions>(options =>
-{
-    options.MultipartBodyLengthLimit = 10485760; // 10 MB
-});
+
 // Add email service
 builder.Services.AddTransient<IEmailSender, EmailService>();
 builder.Services.AddScoped<EmailService>();

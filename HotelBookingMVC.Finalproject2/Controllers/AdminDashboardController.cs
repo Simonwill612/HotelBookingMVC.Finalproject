@@ -43,43 +43,25 @@ public class AdminDashboardController : Controller
     public async Task<IActionResult> Index()
     {
         var users = _userManager.Users.ToList();
-        var managerData = new List<UserViewModel>();
-        var customerData = new List<UserViewModel>();
-
+        var userData = new List<UserViewModel>();
         foreach (var user in users)
         {
             var roles = await _userManager.GetRolesAsync(user);
 
-            if (roles.Contains("Manager"))
+            // Kiểm tra nếu người dùng không thuộc vai trò "Admin"
+            if (!roles.Contains("Admin"))
             {
-                managerData.Add(new UserViewModel
+                userData.Add(new UserViewModel
                 {
                     Id = user.Id,
                     Email = user.Email,
                     EmailConfirmed = user.EmailConfirmed,
                     PasswordHash = user.PasswordHash,
                     Roles = roles,
-                    HotelName = user.HotelName // Assuming HotelName is set for Managers
-                });
-            }
-            else if (roles.Contains("User")) // Assuming "User" is the role for customers
-            {
-                customerData.Add(new UserViewModel
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    EmailConfirmed = user.EmailConfirmed,
-                    PasswordHash = user.PasswordHash,
-                    Roles = roles,
-                    HotelName = null // Customers do not have a hotel name
                 });
             }
         }
-
-        ViewBag.Managers = managerData;
-        ViewBag.Customers = customerData;
-
-        return View();
+        return View(userData);
     }
 
     // GET: /Account/Details

@@ -11,7 +11,7 @@ namespace HotelBookingMVC.Finalproject2.Models
         [StringLength(100)]
         public string? LastName { get; set; }
 
-       
+
         [StringLength(200)]
         public string? Address { get; set; }
 

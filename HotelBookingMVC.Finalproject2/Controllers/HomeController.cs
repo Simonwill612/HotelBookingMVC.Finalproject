@@ -1,4 +1,4 @@
-using HotelBookingMVC.Finalproject2.Data;
+﻿using HotelBookingMVC.Finalproject2.Data;
 using HotelBookingMVC.Finalproject2.Data.Entities;
 using HotelBookingMVC.Finalproject2.Models;
 using HotelBookingMVC.Finalproject2.ViewModels;
@@ -21,12 +21,16 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string state = "", string city = "")
+        public async Task<IActionResult> Index()
         {
-            if (string.IsNullOrEmpty(state) && string.IsNullOrEmpty(city)) {
-                var hotelViewModels = await _context.Hotels
-                    .Include(h => h.HotelMediaDetails)
-                    .Select(h => new HotelViewModel
+            // Nhóm khách sạn theo từng thành phố
+            var groupedHotels = await _context.Hotels
+                .Include(h => h.HotelMediaDetails)
+                .ThenInclude(h => h.Media)
+                .GroupBy(h => h.City)
+                .ToDictionaryAsync(
+                    g => g.Key,
+                    g => g.Select(h => new HotelViewModel
                     {
                         HotelID = h.HotelID,
                         Name = h.Name,
@@ -47,53 +51,9 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                                 FilePath = rmd.Media.FilePath,
                                 MediaType = rmd.Media.MediaType
                             }).ToList()
-                    }).ToListAsync();
+                    }).ToList());
 
-                var hotels = await _context.Hotels
-                                           .Where(h => h.State.Contains(state) && h.City.Contains(city))
-                                           .Include(h => h.HotelMediaDetails)
-                                                .ThenInclude(h => h.Media)
-                                           .ToListAsync();
-                return View(hotelViewModels);
-
-            }
-            else
-            {
-                var hotels = await _context.Hotels
-                                       .Where(h => h.State.Contains(state) && h.City.Contains(city))
-                                       .Include(h => h.HotelMediaDetails)
-                                            .ThenInclude(h => h.Media)
-                                       .ToListAsync();
-                var hotelViewModels = hotels.Select(h => new HotelViewModel
-                {
-                    HotelID = h.HotelID,
-                    Name = h.Name,
-                    Address = h.Address,
-                    City = h.City,
-                    State = h.State,
-                    ZipCode = h.ZipCode,
-                    PhoneNumber = h.PhoneNumber,
-                    Email = h.Email,
-                    Description = h.Description,
-                    CreatedAt = h.CreatedAt,
-                    UpdatedAt = h.UpdatedAt,
-                    //Media = h.Media.ToList()
-                    Media = h.HotelMediaDetails
-                            .Select(rmd => new MediaViewModel
-                            {
-                                MediaID = rmd.MediaId,
-                                FileName = rmd.Media.FileName,
-                                FilePath = rmd.Media.FilePath,
-                                MediaType = rmd.Media.MediaType
-                            }).ToList()
-                }).ToList();
-
-                return View(hotelViewModels);
-            }
-
-
-
-            
+            return View(groupedHotels);
         }
 
         public IActionResult Privacy()
@@ -122,31 +82,75 @@ namespace HotelBookingMVC.Finalproject2.Controllers
 
             var hotels = await hotelsQuery.ToListAsync();
 
-            var hotelViewModels = hotels.Select(h => new HotelViewModel
-            {
-                HotelID = h.HotelID,
-                Name = h.Name,
-                Address = h.Address,
-                City = h.City,
-                State = h.State,
-                ZipCode = h.ZipCode,
-                PhoneNumber = h.PhoneNumber,
-                Email = h.Email,
-                Description = h.Description,
-                CreatedAt = h.CreatedAt,
-                UpdatedAt = h.UpdatedAt,
-                Media = h.HotelMediaDetails
-                    .Select(rmd => new MediaViewModel
+            // Nhóm khách sạn theo thành phố giống như trong action Index
+            var groupedHotels = hotels.GroupBy(h => h.City)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(h => new HotelViewModel
                     {
-                        MediaID = rmd.MediaId,
-                        FileName = rmd.Media.FileName,
-                        FilePath = rmd.Media.FilePath,
-                        MediaType = rmd.Media.MediaType
-                    }).ToList()
-            }).ToList();
+                        HotelID = h.HotelID,
+                        Name = h.Name,
+                        Address = h.Address,
+                        City = h.City,
+                        State = h.State,
+                        ZipCode = h.ZipCode,
+                        PhoneNumber = h.PhoneNumber,
+                        Email = h.Email,
+                        Description = h.Description,
+                        CreatedAt = h.CreatedAt,
+                        UpdatedAt = h.UpdatedAt,
+                        Media = h.HotelMediaDetails
+                            .Select(rmd => new MediaViewModel
+                            {
+                                MediaID = rmd.MediaId,
+                                FileName = rmd.Media.FileName,
+                                FilePath = rmd.Media.FilePath,
+                                MediaType = rmd.Media.MediaType
+                            }).ToList()
+                    }).ToList());
 
-            return View("Index", hotelViewModels);
+            return View("Index", groupedHotels);
         }
+
+        // GET: Hotels/Details/{id}
+        public async Task<IActionResult> Details(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var hotel = await _context.Hotels
+                //.Include(h => h.Media)
+                .Include(h => h.HotelMediaDetails)
+                .FirstOrDefaultAsync(m => m.HotelID == id);
+
+            if (hotel == null)
+            {
+                return NotFound();
+            }
+
+            var hotelViewModel = new HotelViewModel
+            {
+                HotelID = hotel.HotelID,
+                Name = hotel.Name,
+                Address = hotel.Address,
+                City = hotel.City,
+                State = hotel.State,
+                ZipCode = hotel.ZipCode,
+                PhoneNumber = hotel.PhoneNumber,
+                Email = hotel.Email,
+                Description = hotel.Description,
+                CreatedAt = hotel.CreatedAt,
+                UpdatedAt = hotel.UpdatedAt,
+                Media = hotel.HotelMediaDetails
+                    .Select(m => new MediaViewModel(m.Media))
+                    .ToList()
+            };
+
+            return View(hotelViewModel);
+        }
+
 
 
     }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelBookingMVC.Finalproject2.MigrationsIdentity
 {
     [DbContext(typeof(HotelIdentityDBContext))]
-    [Migration("20241116142949_EditUser")]
-    partial class EditUser
+    [Migration("20241118120502_CreateIdentityShema")]
+    partial class CreateIdentityShema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

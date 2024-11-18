@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HotelBookingMVC.Finalproject2.Migrations
 {
     /// <inheritdoc />
-    public partial class Add_FrontEnd : Migration
+    public partial class Add_Frontend : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

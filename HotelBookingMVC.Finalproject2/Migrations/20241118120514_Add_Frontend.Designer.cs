@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelBookingMVC.Finalproject2.Migrations
 {
     [DbContext(typeof(HotelBookingDbContext))]
-    [Migration("20241117114244_Add_FrontEnd")]
-    partial class Add_FrontEnd
+    [Migration("20241118120514_Add_Frontend")]
+    partial class Add_Frontend
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

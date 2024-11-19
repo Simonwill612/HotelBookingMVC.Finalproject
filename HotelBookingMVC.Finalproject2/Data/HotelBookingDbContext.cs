@@ -9,7 +9,7 @@ namespace HotelBookingMVC.Finalproject2.Data
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var connectionString = "Server=LAPTOP-76U18161; Database=HotelBookingDb2Context; User Id=sa; password=P@ssword12345; TrustServerCertificate=True; Trusted_Connection=False; MultipleActiveResultSets=true;";
+            var connectionString = "Server=DESKTOP-8FB6QA6; Database=HotelBookingDb2Context; User Id=ADMIN; password=P@ssword12345; TrustServerCertificate=True; Trusted_Connection=False; MultipleActiveResultSets=true;";
             optionsBuilder.UseSqlServer(connectionString);
         }
 

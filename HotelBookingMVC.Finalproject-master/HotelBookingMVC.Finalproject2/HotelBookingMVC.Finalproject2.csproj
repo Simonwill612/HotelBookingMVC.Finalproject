@@ -1,0 +1,129 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="HotelBookingMVC.Finalproject2\**" />
+		<Compile Remove="wwwroot\**" />
+		<Content Remove="HotelBookingMVC.Finalproject2\**" />
+		<Content Remove="wwwroot\**" />
+		<EmbeddedResource Remove="HotelBookingMVC.Finalproject2\**" />
+		<EmbeddedResource Remove="wwwroot\**" />
+		<None Remove="HotelBookingMVC.Finalproject2\**" />
+		<None Remove="wwwroot\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="Views\Cart\cart.js" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="wwwroot\js\cart.js" />
+		<Content Include="wwwroot\css\site.css" />
+		<Content Include="wwwroot\favicon.ico" />
+		<Content Include="wwwroot\img\bg-img\bg-1.jpg" />
+		<Content Include="wwwroot\img\bg-img\bg-2.jpg" />
+		<Content Include="wwwroot\img\bg-img\bg-3.jpg" />
+		<Content Include="wwwroot\img\bg-img\bg-4.jpg" />
+		<Content Include="wwwroot\img\bg-img\bg-5.jpg" />
+		<Content Include="wwwroot\img\bg-img\tes-1.jpeg" />
+		<Content Include="wwwroot\img\bg-img\tes-2.jpg" />
+		<Content Include="wwwroot\img\bg-img\tes-3.jpg" />
+		<Content Include="wwwroot\img\core-img\favicon.ico" />
+		<Content Include="wwwroot\img\core-img\logo.png" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css" />
+		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css" />
+		<Content Include="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt" />
+		<Content Include="wwwroot\lib\jquery\LICENSE.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Common\" />
+		<Folder Include="wwwroot\media\hotel\" />
+		<Folder Include="wwwroot\media\room\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="wwwroot\js\site.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map" />
+		<None Include="wwwroot\lib\bootstrap\LICENSE" />
+		<None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js" />
+		<None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js" />
+		<None Include="wwwroot\lib\jquery-validation\dist\additional-methods.js" />
+		<None Include="wwwroot\lib\jquery-validation\dist\additional-methods.min.js" />
+		<None Include="wwwroot\lib\jquery-validation\dist\jquery.validate.js" />
+		<None Include="wwwroot\lib\jquery-validation\dist\jquery.validate.min.js" />
+		<None Include="wwwroot\lib\jquery-validation\LICENSE.md" />
+		<None Include="wwwroot\lib\jquery\dist\jquery.js" />
+		<None Include="wwwroot\lib\jquery\dist\jquery.min.js" />
+		<None Include="wwwroot\lib\jquery\dist\jquery.min.map" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MailKit" Version="4.7.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
+		<PackageReference Include="MimeKit" Version="4.7.1" />
+		<PackageReference Include="NETCore.MailKit" Version="2.1.0" />
+		<PackageReference Include="Stripe.net" Version="45.11.0" />
+		<PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />
+	</ItemGroup>
+
+</Project>

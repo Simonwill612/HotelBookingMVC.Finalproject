@@ -1,0 +1,14 @@
+@media (max-width: 992px) {
+  .navbar-toggler {
+    margin-left: 0px;
+  }
+}
+.navbar-toggler {
+  color: white;
+  background-color: #189a46 !important;
+  border: 1px solid #189a46 !important;
+}
+
+.dark .page-link {
+  background-color: #212020;
+}

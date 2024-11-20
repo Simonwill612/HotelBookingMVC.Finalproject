@@ -1,0 +1,87 @@
+﻿@model HotelBookingMVC.Finalproject2.ViewModels.RoomViewModel
+
+@{
+    ViewData["Title"] = "Create Room";
+    Layout = "~/Views/Shared/CreateRoomsLayout.cshtml";
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="bg-light rounded p-4">
+                <h2 class="text-center">@ViewData["Title"]</h2>
+                <hr />
+                <div class="row">
+                    <div class="col-md-6 mx-auto">
+                        <form asp-action="Create" enctype="multipart/form-data">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                            <input type="hidden" asp-for="HotelID" value="@ViewBag.HotelID" />
+                            <input type="hidden" asp-for="RoomID" />
+
+                            <div class="form-group mb-3">
+                                <label asp-for="RoomNumber" class="control-label"></label>
+                                <input asp-for="RoomNumber" class="form-control" />
+                                <span asp-validation-for="RoomNumber" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="Type" class="control-label"></label>
+                                <select asp-for="Type" class="form-control">
+                                    <option value="">Select Type</option>
+                                    <option value="Single">Single</option>
+                                    <option value="Double">Double</option>
+                                    <option value="Suite">Suite</option>
+                                </select>
+                                <span asp-validation-for="Type" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="PricePerNight" class="control-label"></label>
+                                <input asp-for="PricePerNight" class="form-control" />
+                                <span asp-validation-for="PricePerNight" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="Description" class="control-label"></label>
+                                <textarea asp-for="Description" class="form-control"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="Availability" class="control-label"></label>
+                                <input asp-for="Availability" type="checkbox" />
+                                <span asp-validation-for="Availability" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="ImageFiles" class="control-label">Images</label>
+                                <input asp-for="ImageFiles" type="file" multiple class="form-control-file" />
+                                <span asp-validation-for="ImageFiles" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="VideoFiles" class="control-label">Videos</label>
+                                <input asp-for="VideoFiles" type="file" multiple class="form-control-file" />
+                                <span asp-validation-for="VideoFiles" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <input type="submit" value="Save" class="btn btn-primary" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a asp-action="Index" asp-route-hotelId="@Model.HotelID" class="btn btn-secondary">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

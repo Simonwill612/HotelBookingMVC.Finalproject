@@ -4,7 +4,6 @@
     ViewData["Title"] = "Hotels";
 
     Layout = "~/Views/Shared/AdminLayout.cshtml";
-
 }
 
 <h1 class="text-center">Hotels Manager</h1>
@@ -66,6 +65,7 @@
                                         <a asp-action="Details" asp-route-id="@item.HotelID" class="btn btn-info">Details</a>
                                         <a asp-action="Delete" asp-route-id="@item.HotelID" class="btn btn-danger">Delete</a>
                                         <a asp-controller="Rooms" asp-action="Index" asp-route-hotelId="@item.HotelID" class="btn btn-warning">Manage Rooms</a>
+                                        <a asp-controller="Feedbacks" asp-action="Create" asp-route-hotelId="@item.HotelID" class="btn btn-secondary">Feedback</a> <!-- Nút Feedback -->
                                     </td>
                                 </tr>
                             }

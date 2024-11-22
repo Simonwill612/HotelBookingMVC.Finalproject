@@ -14,8 +14,9 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HotelBookingMVC.Finalproject2.Controllers
 {
-/*    [Authorize]
-*/    public class RoomsController : Controller
+    /*    [Authorize]
+    */
+    public class RoomsController : Controller
     {
         private readonly HotelBookingDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;

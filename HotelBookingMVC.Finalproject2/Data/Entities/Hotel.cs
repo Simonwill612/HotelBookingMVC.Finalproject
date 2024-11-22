@@ -56,6 +56,6 @@ namespace HotelBookingMVC.Finalproject2.Data.Entities
 
         public virtual ICollection<HotelMediaDetail> HotelMediaDetails { get; set; }
         public virtual ICollection<Promotion> Promotions { get; set; }
-
+        public virtual ICollection<Feedback> Feedbacks { get; set; }
     }
 }

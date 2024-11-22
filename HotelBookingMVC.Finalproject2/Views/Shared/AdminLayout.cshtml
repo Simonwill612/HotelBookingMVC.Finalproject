@@ -33,7 +33,6 @@
     <!-- Template Stylesheet -->
     <link href="./../../../css/dashboard.css" rel="stylesheet" />
 </head>
-
 <body>
     <div class="container-xxl position-relative bg-white d-flex p-0">
         <!-- Spinner Start -->
@@ -185,6 +184,7 @@
                 </div>
             </nav>
             @RenderBody()
+            @RenderSection("Scripts", required: false)
 
             <!-- Footer Start -->
             <div class="container-fluid pt-4 px-4">

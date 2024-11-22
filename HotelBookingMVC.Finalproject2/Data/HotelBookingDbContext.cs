@@ -2,6 +2,7 @@
 using HotelBookingMVC.Finalproject2.Data.Entities;
 using HotelBookingMVC.Finalproject2.Configuration;
 using HotelBookingMVC.Finalproject2.Configurations;
+using HotelBookingMVC.Finalproject2.Data.Configurations;
 
 namespace HotelBookingMVC.Finalproject2.Data
 {
@@ -24,6 +25,8 @@ namespace HotelBookingMVC.Finalproject2.Data
         public DbSet<RoomMediaDetail> RoomMediaDetails { get; set; }
         public DbSet<HotelMediaDetail> HotelMediaDetails { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
+
 
 
         // Add other DbSets as needed
@@ -41,6 +44,9 @@ namespace HotelBookingMVC.Finalproject2.Data
             modelBuilder.ApplyConfiguration(new RoomMediaDetailConfiguration());
             modelBuilder.ApplyConfiguration(new HotelMediaDetailConfiguration());
             modelBuilder.ApplyConfiguration(new PromotionConfiguration());
+            modelBuilder.ApplyConfiguration(new FeedbackConfiguration());
+
+
 
             // Apply other configurations as needed
         }

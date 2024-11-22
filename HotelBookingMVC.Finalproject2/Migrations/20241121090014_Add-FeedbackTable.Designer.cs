@@ -4,6 +4,7 @@ using HotelBookingMVC.Finalproject2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelBookingMVC.Finalproject2.Migrations
 {
     [DbContext(typeof(HotelBookingDbContext))]
-    partial class HotelBookingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241121090014_Add-FeedbackTable")]
+    partial class AddFeedbackTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -204,7 +207,7 @@ namespace HotelBookingMVC.Finalproject2.Migrations
 
                     b.HasIndex("HotelID");
 
-                    b.ToTable("Feedbacks", t =>
+                    b.ToTable("Feedback", t =>
                         {
                             t.HasCheckConstraint("CK_Feedback_StarRating", "StarRating >= 1 AND StarRating <= 5");
                         });

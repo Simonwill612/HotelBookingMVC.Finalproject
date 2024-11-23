@@ -4,6 +4,7 @@ using HotelBookingMVC.Finalproject2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelBookingMVC.Finalproject2.Migrations
 {
     [DbContext(typeof(HotelBookingDbContext))]
-    partial class HotelBookingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241123150515_edittableHotelv4")]
+    partial class edittableHotelv4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -258,8 +261,7 @@ namespace HotelBookingMVC.Finalproject2.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ZipCode")
                         .IsRequired()
@@ -267,9 +269,6 @@ namespace HotelBookingMVC.Finalproject2.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("HotelID");
-
-                    b.HasIndex("UserID")
-                        .IsUnique();
 
                     b.ToTable("Hotels", (string)null);
                 });

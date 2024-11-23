@@ -118,6 +118,13 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             {
                 var userId = _userManager.GetUserId(User); // Get the current user's ID
 
+                var existingHotel = await _context.Hotels.FirstOrDefaultAsync(h => h.UserID == userId);
+                if (existingHotel != null)
+                {
+                    ModelState.AddModelError(string.Empty, "You have already created a hotel.");
+                    return View(hotelViewModel);
+                }
+
                 var hotel = new Hotel
                 {
                     HotelID = Guid.NewGuid(),

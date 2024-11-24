@@ -25,6 +25,7 @@
                                 <th scope="col">Phone Number</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Media</th>
+                                <th scope="col">Create By</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
@@ -55,6 +56,8 @@
                                             }
                                         }
                                     </td>
+                                    <td>@Html.DisplayFor(modelItem => item.CreatedByUser)</td>
+
                                     <td>
                                         <a asp-action="Edit" asp-route-id="@item.HotelID" class="btn btn-success">Edit</a>
                                         <a asp-action="Details" asp-route-id="@item.HotelID" class="btn btn-info">Details</a>

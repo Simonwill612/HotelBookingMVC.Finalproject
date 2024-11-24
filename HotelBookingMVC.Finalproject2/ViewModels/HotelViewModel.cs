@@ -60,6 +60,7 @@ namespace HotelBookingMVC.Finalproject2.ViewModels
         public List<IFormFile>? MediaFiles { get; set; } = new List<IFormFile>();
         public List<Guid> ExistingMedia { get; set; } = new List<Guid>();
 
+        public string CreatedByUser { get; set; }
 
     }
 }

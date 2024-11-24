@@ -79,7 +79,7 @@
                                 @foreach (var hotel in Model[city])
                                 {
                                     <div class="col-xl-4 col-md-6 col-sm-12">
-                                        <a href="@Url.Action("Details", "Hotel", new { id = hotel.HotelID })">
+                                        <a href="@Url.Action("Details", "Home", new { id = hotel.HotelID })">
                                             <div class="product_item shadow rounded">
                                                 <div class="media_container">
                                                     @foreach (var media in hotel.Media)

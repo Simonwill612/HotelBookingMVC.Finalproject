@@ -113,43 +113,108 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         }
 
         // GET: Hotels/Details/{id}
-        public async Task<IActionResult> Details(Guid? id)
+        public async Task<IActionResult> Details(Guid? id, Guid? roomId)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
+            // Lấy thông tin khách sạn
             var hotel = await _context.Hotels
-                //.Include(h => h.Media)
                 .Include(h => h.HotelMediaDetails)
-                .FirstOrDefaultAsync(m => m.HotelID == id);
+                .ThenInclude(hmd => hmd.Media)
+                .FirstOrDefaultAsync(h => h.HotelID == id);
 
             if (hotel == null)
             {
                 return NotFound();
             }
 
-            var hotelViewModel = new HotelViewModel
+            // Lấy danh sách phòng
+            var rooms = await _context.Rooms
+                .Where(r => r.HotelID == id)
+                .Include(r => r.RoomMediaDetails)
+                .ThenInclude(rmd => rmd.Media)
+                .ToListAsync();
+
+            // Nếu có roomId, lấy chi tiết phòng
+            var selectedRoom = roomId != null
+                ? await _context.Rooms
+                    .Include(r => r.RoomMediaDetails)
+                    .ThenInclude(rmd => rmd.Media)
+                    .FirstOrDefaultAsync(r => r.RoomID == roomId)
+                : null;
+
+            // Truyền thông tin khách sạn vào ViewBag
+            ViewBag.Hotel = new
             {
-                HotelID = hotel.HotelID,
-                Name = hotel.Name,
-                Address = hotel.Address,
-                City = hotel.City,
-                State = hotel.State,
-                ZipCode = hotel.ZipCode,
-                PhoneNumber = hotel.PhoneNumber,
-                Email = hotel.Email,
-                Description = hotel.Description,
-                CreatedAt = hotel.CreatedAt,
-                UpdatedAt = hotel.UpdatedAt,
-                Media = hotel.HotelMediaDetails
-                    .Select(m => new MediaViewModel(m.Media))
-                    .ToList()
+                hotel.HotelID,
+                hotel.Name,
+                hotel.Address,
+                hotel.City,
+                hotel.State,
+                hotel.ZipCode,
+                hotel.PhoneNumber,
+                hotel.Email,
+                hotel.Description,
+                hotel.CreatedAt,
+                hotel.UpdatedAt,
+                Media = hotel.HotelMediaDetails.Select(m => new
+                {
+                    m.Media.FileName,
+                    m.Media.FilePath,
+                    m.Media.MediaType
+                })
             };
 
-            return View(hotelViewModel);
+            // Truyền danh sách phòng vào ViewBag
+            ViewBag.Rooms = rooms.Select(r => new
+            {
+                r.RoomID,
+                r.HotelID,
+                r.RoomNumber,
+                r.Type,
+                r.PricePerNight,
+                r.Description,
+                r.Availability,
+                r.DateCreatedAt,
+                r.DateUpdatedAt,
+                Media = r.RoomMediaDetails.Select(rmd => new
+                {
+                    rmd.Media.FileName,
+                    rmd.Media.FilePath,
+                    rmd.Media.MediaType
+                })
+            }).ToList();
+
+            // Truyền chi tiết phòng được chọn (nếu có)
+            if (selectedRoom != null)
+            {
+                ViewBag.SelectedRoom = new
+                {
+                    selectedRoom.RoomID,
+                    selectedRoom.HotelID,
+                    selectedRoom.RoomNumber,
+                    selectedRoom.Type,
+                    selectedRoom.PricePerNight,
+                    selectedRoom.Description,
+                    selectedRoom.Availability,
+                    selectedRoom.DateCreatedAt,
+                    selectedRoom.DateUpdatedAt,
+                    Media = selectedRoom.RoomMediaDetails.Select(rmd => new
+                    {
+                        rmd.Media.FileName,
+                        rmd.Media.FilePath,
+                        rmd.Media.MediaType
+                    })
+                };
+            }
+
+            return View();
         }
+
+
 
 
 

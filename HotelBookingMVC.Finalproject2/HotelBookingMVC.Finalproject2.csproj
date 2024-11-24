@@ -70,6 +70,7 @@
 		<Folder Include="Common\" />
 		<Folder Include="wwwroot\media\hotel\video\" />
 		<Folder Include="wwwroot\media\room\" />
+		<Folder Include="wwwroot\uploads\profile_pictures\" />
 	</ItemGroup>
 
 	<ItemGroup>

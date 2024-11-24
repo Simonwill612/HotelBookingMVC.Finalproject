@@ -1,14 +1,22 @@
 ﻿using HotelBookingMVC.Finalproject2.Data;
 using HotelBookingMVC.Finalproject2.Models;
+using HotelBookingMVC.Finalproject2.Services;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add logging services
+builder.Services.AddLogging();
+
+// Add services to the container
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
+// Scoped services for booking and room management
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 
@@ -16,7 +24,7 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddDbContext<HotelBookingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HotelBookingDbContextConnection")));
 
-// Configure DbContext for Identity (Ensure your HotelIdentityDBContext inherits from IdentityDbContext)
+// Configure DbContext for Identity
 builder.Services.AddDbContext<HotelIdentityDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HotelIdentityDBContextConnection")));
 
@@ -66,6 +74,9 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Configure file upload service (if needed)
+builder.Services.AddSingleton<IFileUploadService, FileUploadService>();
+
 // Role management function
 async Task CreateRoles(IServiceProvider serviceProvider)
 {
@@ -91,24 +102,25 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-else
-{
-    app.UseDeveloperExceptionPage();
-}
-
-app.UseStaticFiles();
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseSession(); // Add session middleware
 
+app.UseAuthentication(); // Enable user authentication
+app.UseAuthorization();  // Enable authorization
+app.UseSession();        // Enable session middleware
+
+// Map controller routes
 app.MapControllerRoute(
     name: "admin",
     pattern: "{controller=Admin}/{action=Index}/{id?}");
@@ -118,4 +130,5 @@ app.MapControllerRoute(
     pattern: "{controller=Hotels}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+
 app.Run();

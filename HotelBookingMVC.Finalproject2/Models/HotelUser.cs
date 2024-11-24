@@ -11,7 +11,6 @@ namespace HotelBookingMVC.Finalproject2.Models
         [StringLength(100)]
         public string? LastName { get; set; }
 
-
         [StringLength(200)]
         public string? Address { get; set; }
 
@@ -27,14 +26,9 @@ namespace HotelBookingMVC.Finalproject2.Models
         [StringLength(20)]
         public string? Zip { get; set; }
 
-
-        public string? ImageName { get; set; }
-
-        public string? ProfilePictureLocation { get; set; }
-
+        [StringLength(200)] // Giới hạn độ dài tên tệp ảnh
         public string? ProfilePictureFileName { get; set; }
+
         public virtual ICollection<IdentityUserRole<string>> Roles { get; } = new List<IdentityUserRole<string>>();
-
-
     }
 }

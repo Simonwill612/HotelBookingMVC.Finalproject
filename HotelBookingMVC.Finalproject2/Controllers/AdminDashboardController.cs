@@ -50,7 +50,13 @@ public class AdminDashboardController : Controller
         {
             var roles = await _userManager.GetRolesAsync(user);
 
-            // Check if user has 'manager' role
+            // Loại bỏ người dùng có vai trò "Admin" khỏi danh sách hiển thị
+            if (roles.Contains("Admin"))
+            {
+                continue;
+            }
+
+            // Check if user has 'Manager' role
             if (roles.Contains("Manager"))
             {
                 managerData.Add(new UserViewModel
@@ -81,6 +87,7 @@ public class AdminDashboardController : Controller
 
         return View(viewModel);
     }
+
 
 
     // GET: /Account/Details

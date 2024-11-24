@@ -1,84 +1,205 @@
 ﻿@{
     Layout = "~/Views/Shared/DetailsLayout.cshtml";
+    ViewData["Title"] = "Hotel Details";
 }
 
-<div>
-    <!-- Thông tin khách sạn -->
+<div class="container my-5">
+    <!-- Hotel Media -->
+    @if (ViewBag.Hotel.Media != null)
+    {
+        <div class="mb-4">
+            @foreach (var media in ViewBag.Hotel.Media)
+            {
+                if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image)
+                {
+                    <img class="w-100 rounded-top" src="~/media/hotel/img/@media.FileName" alt="@ViewBag.Hotel.Name" />
+                    break;
+                }
+                else if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Video)
+                {
+                    <video class="w-100 rounded-top" controls>
+                        <source src="~/media/hotel/video/@media.FileName" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    break;
+                }
+            }
+        </div>
+    }
+
+    <!-- Hotel Information -->
     <h1>@ViewBag.Hotel.Name</h1>
     <p><strong>Address:</strong> @ViewBag.Hotel.Address, @ViewBag.Hotel.City, @ViewBag.Hotel.State, @ViewBag.Hotel.ZipCode</p>
     <p><strong>Phone:</strong> @ViewBag.Hotel.PhoneNumber</p>
     <p><strong>Email:</strong> @ViewBag.Hotel.Email</p>
     <p><strong>Description:</strong> @ViewBag.Hotel.Description</p>
 
-    @if (ViewBag.Hotel.Media != null)
-    {
-        <h3>Media</h3>
-        <div>
-            @foreach (var media in ViewBag.Hotel.Media)
-            {
-                <div>
-                    @if (media.MediaType == "Image")
-                    {
-                        <img src="@media.FilePath" alt="@media.FileName" style="max-width: 200px;" />
-                    }
-                    else if (media.MediaType == "Video")
-                    {
-                        <video controls style="max-width: 400px;">
-                            <source src="@media.FilePath" type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
-                    }
-                </div>
-            }
+    <!-- Room Details Table -->
+    <h2 class="mt-5">Rooms</h2>
+    <div class="table_content my-2">
+        <table class="w-100">
+            <thead>
+                <tr>
+                    <th>Room Number</th>
+                    <th>Type</th>
+                    <th>Price Per Night</th>
+                    <th>Description</th>
+                    <th>Availability</th>
+                    <th>Media</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var room in ViewBag.Rooms)
+                {
+                    <tr>
+                        <td>@room.RoomNumber</td>
+                        <td>@room.Type</td>
+                        <td>@room.PricePerNight</td>
+                        <td>@room.Description</td>
+                        <td>@(room.Availability ? "Available" : "Not Available")</td>
+                        <td>
+                            @if (room.Media != null)
+                            {
+                                <div>
+                                    @foreach (var media in room.Media)
+                                    {
+                                        if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image)
+                                        {
+                                            <img src="@media.FilePath" alt="@media.FileName" style="max-width: 100px;" />
+                                        }
+                                        else if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Video)
+                                        {
+                                            <video controls style="max-width: 200px;">
+                                                <source src="@media.FilePath" type="video/mp4" />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        }
+                                    }
+                                </div>
+                            }
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="openBookingModal('@room.RoomID', '@room.PricePerNight')">Add to Cart</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Booking Modal -->
+
+<div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookingModalLabel">Book Room</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form id="booking-form">
+                    <div class="form-group">
+                        <label for="check-in-date">Check-In Date and Time</label>
+                        <input type="text" class="form-control" id="check-in-date" name="CheckInDate" />
+                    </div>
+                    <div class="form-group">
+                        <label for="check-out-date">Check-Out Date and Time</label>
+                        <input type="text" class="form-control" id="check-out-date" name="CheckOutDate" />
+                    </div>
+                    <input type="hidden" id="room-id" name="RoomID" />
+                    <input type="hidden" id="price" name="Price" />
+                    <button type="button" class="btn btn-primary" onclick="addToCart()">Add to Cart</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
+    </div>
+</div>
+
+<!-- Cart Modal -->
+<div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cartModalLabel">Cart</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="cartModalBody">
+                <!-- Cart content will be loaded here via AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a class="btn btn-primary" asp-controller="Cart" asp-action="Index">Go to Cart</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openBookingModal(roomId, price) {
+        $('#room-id').val(roomId);
+        $('#price').val(price);
+        $('#bookingModal').modal('show');
+
+        flatpickr('#check-in-date', {
+            enableTime: true,
+            dateFormat: 'Y-m-d H:i:S',
+        });
+        flatpickr('#check-out-date', {
+            enableTime: true,
+            dateFormat: 'Y-m-d H:i:S',
+        });
     }
 
-    <!-- Danh sách phòng hiển thị trong bảng -->
-    <h2>Rooms</h2>
-    <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr>
-                <th>Room Number</th>
-                <th>Type</th>
-                <th>Price Per Night</th>
-                <th>Description</th>
-                <th>Availability</th>
-                <th>Media</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var room in ViewBag.Rooms)
-            {
-                <tr>
-                    <td>@room.RoomNumber</td>
-                    <td>@room.Type</td>
-                    <td>@room.PricePerNight</td>
-                    <td>@room.Description</td>
-                    <td>@(room.Availability ? "Available" : "Not Available")</td>
-                    <td>
-                        @if (room.Media != null)
-                        {
-                            <div>
-                                @foreach (var media in room.Media)
-                                {
-                                    @if (media.MediaType == "Image")
-                                    {
-                                        <img src="@media.FilePath" alt="@media.FileName" style="max-width: 100px;" />
-                                    }
-                                    else if (media.MediaType == "Video")
-                                    {
-                                        <video controls style="max-width: 200px;">
-                                            <source src="@media.FilePath" type="video/mp4" />
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    }
-                                }
-                            </div>
-                        }
-                    </td>
-                </tr>
+    function addToCart() {
+        var roomId = $('#room-id').val();
+        var price = $('#price').val();
+        var checkInDate = $('#check-in-date').val();
+        var checkOutDate = $('#check-out-date').val();
+
+        $.ajax({
+            url: '@Url.Action("AddToCart", "Cart")',
+            type: 'POST',
+            data: {
+                productId: roomId,
+                price: price,
+                quantity: 1,
+                checkInDate: checkInDate,
+                checkOutDate: checkOutDate
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Room added to cart.');
+                    $('#bookingModal').modal('hide');
+                } else {
+                    alert(response.message);
+                }
             }
-        </tbody>
-    </table>
-</div>
+        });
+    }
+
+    function showCart() {
+        $.ajax({
+            url: '@Url.Action("Index", "Cart")',
+            type: 'GET',
+            success: function(response) {
+                $('#cartModalBody').html(response);
+                $('#cartModal').modal('show');
+            }
+        });
+    }
+</script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

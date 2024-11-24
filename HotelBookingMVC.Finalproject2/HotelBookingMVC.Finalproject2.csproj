@@ -22,9 +22,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="wwwroot\js\cart.js" />
+		<Content Include="wwwroot\css\bootstrap.min.css" />
+		<Content Include="wwwroot\css\contact.css" />
+		<Content Include="wwwroot\css\dashboard.css" />
+		<Content Include="wwwroot\css\hotel.css" />
+		<Content Include="wwwroot\css\index.css" />
+		<Content Include="wwwroot\css\login.css" />
+		<Content Include="wwwroot\css\product_detail.css" />
 		<Content Include="wwwroot\css\site.css" />
-		<Content Include="wwwroot\favicon.ico" />
+		<Content Include="wwwroot\css\style.css" />
 		<Content Include="wwwroot\img\bg-img\bg-1.jpg" />
 		<Content Include="wwwroot\img\bg-img\bg-2.jpg" />
 		<Content Include="wwwroot\img\bg-img\bg-3.jpg" />
@@ -33,8 +39,13 @@
 		<Content Include="wwwroot\img\bg-img\tes-1.jpeg" />
 		<Content Include="wwwroot\img\bg-img\tes-2.jpg" />
 		<Content Include="wwwroot\img\bg-img\tes-3.jpg" />
+		<Content Include="wwwroot\img\bg_1.jpg" />
+		<Content Include="wwwroot\img\bg_2.jpg" />
+		<Content Include="wwwroot\img\bg_3.jpg" />
 		<Content Include="wwwroot\img\core-img\favicon.ico" />
 		<Content Include="wwwroot\img\core-img\logo.png" />
+		<Content Include="wwwroot\img\travel-ibk7fgrvtvhs7qzg.jpg" />
+		<Content Include="wwwroot\favicon.ico" />
 		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css" />
 		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css" />
 		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css" />
@@ -62,7 +73,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Include="wwwroot\js\cart.js" />
+		<None Include="wwwroot\js\main.js" />
 		<None Include="wwwroot\js\site.js" />
+		<None Include="wwwroot\js\style.js" />
+		<None Include="wwwroot\js\util.js" />
 		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
 		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />
 		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map" />

@@ -1,0 +1,84 @@
+﻿@{
+    Layout = "~/Views/Shared/DetailsLayout.cshtml";
+}
+
+<div>
+    <!-- Thông tin khách sạn -->
+    <h1>@ViewBag.Hotel.Name</h1>
+    <p><strong>Address:</strong> @ViewBag.Hotel.Address, @ViewBag.Hotel.City, @ViewBag.Hotel.State, @ViewBag.Hotel.ZipCode</p>
+    <p><strong>Phone:</strong> @ViewBag.Hotel.PhoneNumber</p>
+    <p><strong>Email:</strong> @ViewBag.Hotel.Email</p>
+    <p><strong>Description:</strong> @ViewBag.Hotel.Description</p>
+
+    @if (ViewBag.Hotel.Media != null)
+    {
+        <h3>Media</h3>
+        <div>
+            @foreach (var media in ViewBag.Hotel.Media)
+            {
+                <div>
+                    @if (media.MediaType == "Image")
+                    {
+                        <img src="@media.FilePath" alt="@media.FileName" style="max-width: 200px;" />
+                    }
+                    else if (media.MediaType == "Video")
+                    {
+                        <video controls style="max-width: 400px;">
+                            <source src="@media.FilePath" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Danh sách phòng hiển thị trong bảng -->
+    <h2>Rooms</h2>
+    <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Room Number</th>
+                <th>Type</th>
+                <th>Price Per Night</th>
+                <th>Description</th>
+                <th>Availability</th>
+                <th>Media</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var room in ViewBag.Rooms)
+            {
+                <tr>
+                    <td>@room.RoomNumber</td>
+                    <td>@room.Type</td>
+                    <td>@room.PricePerNight</td>
+                    <td>@room.Description</td>
+                    <td>@(room.Availability ? "Available" : "Not Available")</td>
+                    <td>
+                        @if (room.Media != null)
+                        {
+                            <div>
+                                @foreach (var media in room.Media)
+                                {
+                                    @if (media.MediaType == "Image")
+                                    {
+                                        <img src="@media.FilePath" alt="@media.FileName" style="max-width: 100px;" />
+                                    }
+                                    else if (media.MediaType == "Video")
+                                    {
+                                        <video controls style="max-width: 200px;">
+                                            <source src="@media.FilePath" type="video/mp4" />
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    }
+                                }
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

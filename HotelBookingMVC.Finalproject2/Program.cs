@@ -16,24 +16,14 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddDbContext<HotelBookingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HotelBookingDbContextConnection")));
 
-// Configure DbContext for Identity
+// Configure DbContext for Identity (Ensure your HotelIdentityDBContext inherits from IdentityDbContext)
 builder.Services.AddDbContext<HotelIdentityDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HotelIdentityDBContextConnection")));
 
 // Configure Identity services
-builder.Services.AddDefaultIdentity<HotelUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddRoles<IdentityRole>() // Add roles support
-    .AddEntityFrameworkStores<HotelIdentityDBContext>();
-
-//// Configure upload limits
-//builder.Services.Configure<FormOptions>(options =>
-//{
-//    options.MultipartBodyLengthLimit = 314572800; // 300 MB
-//});
-
-// Configure Identity options
-builder.Services.Configure<IdentityOptions>(options =>
+builder.Services.AddIdentity<HotelUser, IdentityRole>(options =>
 {
+    options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = true;
@@ -46,9 +36,12 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Lockout.AllowedForNewUsers = true;
 
     options.User.AllowedUserNameCharacters =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
     options.User.RequireUniqueEmail = false;
-});
+})
+.AddEntityFrameworkStores<HotelIdentityDBContext>()
+.AddDefaultUI()
+.AddDefaultTokenProviders();
 
 // Application cookie configuration
 builder.Services.ConfigureApplicationCookie(options =>
@@ -107,10 +100,10 @@ else
 {
     app.UseDeveloperExceptionPage();
 }
+
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

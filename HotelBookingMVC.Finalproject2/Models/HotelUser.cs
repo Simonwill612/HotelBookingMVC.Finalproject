@@ -33,7 +33,8 @@ namespace HotelBookingMVC.Finalproject2.Models
         public string? ProfilePictureLocation { get; set; }
 
         public string? ProfilePictureFileName { get; set; }
+        public virtual ICollection<IdentityUserRole<string>> Roles { get; } = new List<IdentityUserRole<string>>();
 
-        public string? HotelName { get; set; }
+
     }
 }

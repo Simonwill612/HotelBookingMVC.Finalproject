@@ -43,26 +43,45 @@ public class AdminDashboardController : Controller
     public async Task<IActionResult> Index()
     {
         var users = _userManager.Users.ToList();
-        var userData = new List<UserViewModel>();
+        var customerData = new List<UserViewModel>();
+        var managerData = new List<UserViewModel>();
+
         foreach (var user in users)
         {
             var roles = await _userManager.GetRolesAsync(user);
 
-            // Kiểm tra nếu người dùng không thuộc vai trò "Admin"
-            if (!roles.Contains("Admin"))
+            // Check if user has 'manager' role
+            if (roles.Contains("Manager"))
             {
-                userData.Add(new UserViewModel
+                managerData.Add(new UserViewModel
                 {
                     Id = user.Id,
                     Email = user.Email,
                     EmailConfirmed = user.EmailConfirmed,
-                    PasswordHash = user.PasswordHash,
-                    Roles = roles,
+                    Roles = roles
+                });
+            }
+            else // Assuming the default role is customer or null
+            {
+                customerData.Add(new UserViewModel
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    EmailConfirmed = user.EmailConfirmed,
+                    Roles = roles
                 });
             }
         }
-        return View(userData);
+
+        var viewModel = new
+        {
+            Customers = customerData,
+            Managers = managerData
+        };
+
+        return View(viewModel);
     }
+
 
     // GET: /Account/Details
     public async Task<IActionResult> Details(string id)
@@ -130,17 +149,6 @@ public class AdminDashboardController : Controller
         user.Email = model.Email;
         user.EmailConfirmed = model.EmailConfirmed;
 
-        // Automatically generate a new password
-        var newPassword = GenerateRandomPassword();
-        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
-
-        if (!result.Succeeded)
-        {
-            AddErrors(result);
-            return View(model);
-        }
-
         // Get the current user roles
         var currentRoles = await _userManager.GetRolesAsync(user);
 
@@ -185,11 +193,6 @@ public class AdminDashboardController : Controller
         return RedirectToAction("Index");
     }
 
-    private string GenerateRandomPassword()
-    {
-        // Implement your password generation logic here
-        return "NewPassword123!";
-    }
 
     private void AddErrors(IdentityResult result)
     {

@@ -80,7 +80,7 @@ namespace HotelBookingMVC.Finalproject2.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByEmailAsync(Input.Email);
-                    if (await _userManager.IsInRoleAsync(user, "Admin"))
+                    if (await _userManager.IsInRoleAsync(user, "Manager"))
                     {
                         return RedirectToAction("Index", "AdminDashboard");
                     }

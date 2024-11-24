@@ -46,11 +46,12 @@
                     </a>
                     <ul class="">
                         <li class="mx-5">
-                            <div class="iconCart">
+                            <div class="iconCart" onclick="showCart()">
                                 <i class="fa-solid fa-cart-shopping cart_logo z-1"></i>
-                                <div class="totalQuality">0</div>
+                                <div class="totalQuality">0</div> <!-- Số lượng sẽ được cập nhật -->
                             </div>
                         </li>
+
                         <li>
                             <a href="/Identity/Account/Login">
                                 <button class="btn-primary">Login</button>
@@ -138,7 +139,26 @@
             </div>
         </div>
     </footer>
-
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cartModalLabel">Cart</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="cartModalBody">
+                    <!-- Cart content will be loaded here via AJAX -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a class="btn btn-primary" asp-controller="Cart" asp-action="Index">Go to Cart</a>
+                </div>
+            </div>
+        </div>
+    </div>
     <a href="~/Home"
        class="cd-top text-replace js-cd-top btn btn-lg btn-primary btn-lg-square back-to-top">
         <i class="fa-solid fa-arrow-up"></i>
@@ -198,6 +218,79 @@
             },
           });
         });
+    </script>
+    <script>
+        function openBookingModal(roomId, price) {
+            $('#room-id').val(roomId);
+            $('#price').val(price);
+            $('#bookingModal').modal('show');
+
+            flatpickr('#check-in-date', {
+                enableTime: true,
+                dateFormat: 'Y-m-d H:i:S',
+            });
+            flatpickr('#check-out-date', {
+                enableTime: true,
+                dateFormat: 'Y-m-d H:i:S',
+            });
+        }
+
+                function updateCartQuantity() {
+            $.ajax({
+                url: '/Cart/GetCartQuantity', // Gọi Action để lấy tổng số lượng sản phẩm
+                type: 'GET',
+                success: function (response) {
+                    $('.totalQuality').text(response.quantity); // Cập nhật số lượng hiển thị
+                },
+                error: function () {
+                    console.error("Failed to update cart quantity.");
+                }
+            });
+        }
+
+        function addToCart() {
+            var roomId = $('#room-id').val();
+            var price = $('#price').val();
+            var checkInDate = $('#check-in-date').val();
+            var checkOutDate = $('#check-out-date').val();
+
+            $.ajax({
+                url: '/Cart/AddToCart',
+                type: 'POST',
+                data: {
+                    productId: roomId,
+                    price: price,
+                    quantity: 1, // Thêm sản phẩm với số lượng mặc định là 1
+                    checkInDate: checkInDate,
+                    checkOutDate: checkOutDate
+                },
+                success: function (response) {
+                    if (response.success) {
+                        alert('Room added to cart.');
+                        $('#bookingModal').modal('hide');
+                        updateCartQuantity(); // Cập nhật số lượng trên biểu tượng giỏ hàng
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            updateCartQuantity(); // Cập nhật số lượng khi tải trang
+        });
+
+
+        function showCart() {
+            $.ajax({
+                url: '@Url.Action("Index", "Cart")',
+                type: 'GET',
+                success: function(response) {
+                    $('#cartModalBody').html(response);
+                    $('#cartModal').modal('show');
+                }
+            });
+        }
     </script>
     <!-- my script -->
     <script src="./js/main.js"></script>

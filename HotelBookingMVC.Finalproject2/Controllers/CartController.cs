@@ -58,6 +58,8 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             };
         }
 
+
+
         [HttpPost]
         public IActionResult AddToCart(Guid productId, decimal price, DateTime checkInDate, DateTime checkOutDate)
         {
@@ -375,11 +377,33 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         }
 
 
+        [HttpGet]
+        public IActionResult GetCartQuantity()
+        {
+            var cart = GetCart();
+            var quantity = cart?.CartItems.Sum(item => item.Quantity) ?? 0; // Tổng số lượng sản phẩm
+            return Json(new { quantity });
+        }
+
         private CartViewModel GetCart()
         {
             var cartJson = HttpContext.Session.GetString(CartSessionKey);
-            return string.IsNullOrEmpty(cartJson) ? null : JsonConvert.DeserializeObject<CartViewModel>(cartJson);
+            var cart = string.IsNullOrEmpty(cartJson) ? null : JsonConvert.DeserializeObject<CartViewModel>(cartJson);
+
+            if (cart?.CartItems != null)
+            {
+                foreach (var item in cart.CartItems)
+                {
+                    if (item.Quantity == 0)
+                    {
+                        item.Quantity = 1; // Đặt mặc định là 1 nếu chưa có số lượng
+                    }
+                }
+            }
+
+            return cart;
         }
+
 
         private void UpdateCart(CartViewModel cart)
         {

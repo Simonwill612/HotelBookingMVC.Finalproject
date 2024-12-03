@@ -50,7 +50,6 @@ public class AdminDashboardController : Controller
         {
             var roles = await _userManager.GetRolesAsync(user);
 
-            // Loại bỏ người dùng có vai trò "Admin" khỏi danh sách hiển thị
             if (roles.Contains("Admin"))
             {
                 continue;

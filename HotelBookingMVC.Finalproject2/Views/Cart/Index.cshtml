@@ -25,7 +25,7 @@
                 </td>
                 <td>@item.CheckInDate.ToShortDateString()</td>
                 <td>@item.CheckOutDate.ToShortDateString()</td>
-                <td>@(item.Price * item.Quantity).ToString("C")</td>
+                <td>@(item.Price * item.Quantity)</td>
                 <td>
                     <button class="btn btn-danger remove-item" data-id="@item.CartItemID">Remove</button>
                 </td>

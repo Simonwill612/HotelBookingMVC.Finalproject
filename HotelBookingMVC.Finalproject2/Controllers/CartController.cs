@@ -47,6 +47,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 {
                     CartItemID = i.CartItemID,
                     RoomID = i.RoomID,
+                    RoomNumber = _context.Rooms.FirstOrDefault(r => r.RoomID == i.RoomID)?.RoomNumber ?? "Unknown", // Lấy RoomNumber
                     Price = i.Price,
                     Quantity = i.Quantity,
                     CheckInDate = i.CheckInDate,
@@ -140,17 +141,29 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         [HttpPost]
         public IActionResult RemoveFromCart(Guid cartItemId)
         {
+            // Lấy giỏ hàng từ session
             var cart = GetCart();
-            var item = cart?.CartItems.FirstOrDefault(i => i.CartItemID == cartItemId);
+            if (cart == null || cart.CartItems == null)
+            {
+                return Json(new { success = false, message = "Cart is empty or not found." });
+            }
 
+            // Tìm mục cần xóa trong giỏ hàng
+            var item = cart.CartItems.FirstOrDefault(i => i.CartItemID == cartItemId);
             if (item == null)
-                return Json(new { success = false, message = "Item not found." });
+            {
+                return Json(new { success = false, message = "Item not found in the cart." });
+            }
 
+            // Xóa mục khỏi giỏ hàng
             cart.CartItems.Remove(item);
+
+            // Cập nhật lại giỏ hàng trong session
             UpdateCart(cart);
 
             return Json(new { success = true, message = "Item removed from cart." });
         }
+
 
         // Tạo hóa đơn
         public async Task<IActionResult> ShowBill()

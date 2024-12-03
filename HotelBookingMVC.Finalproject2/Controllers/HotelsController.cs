@@ -36,25 +36,11 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         // GET: Hotels
         public async Task<IActionResult> Index()
         {
+            //var hotels = await _context.Hotels.Include(h => h.Media).ToListAsync();
             var hotels = await _context.Hotels
                 .Include(h => h.HotelMediaDetails)
                     .ThenInclude(h => h.Media)
                 .ToListAsync();
-
-            foreach (var hotel in hotels)
-            {
-                // Lấy thông tin UserName từ UserID bằng UserManager
-                if (!string.IsNullOrEmpty(hotel.UserID))
-                {
-                    var user = await _userManager.FindByIdAsync(hotel.UserID);
-                    hotel.CreatedByUser = user?.UserName ?? "Unknown";
-                }
-                else
-                {
-                    hotel.CreatedByUser = "Unknown";
-                }
-            }
-
             var hotelViewModels = hotels.Select(h => new HotelViewModel
             {
                 HotelID = h.HotelID,
@@ -68,7 +54,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 Description = h.Description,
                 CreatedAt = h.CreatedAt,
                 UpdatedAt = h.UpdatedAt,
-                CreatedByUser = h.CreatedByUser?.ToString() ?? "Unknown", // Gắn thông tin UserName vào ViewModel
+                //Media = h.Media.ToList()
                 Media = h.HotelMediaDetails
                     .Select(m => new MediaViewModel(m.Media))
                     .ToList()
@@ -76,8 +62,6 @@ namespace HotelBookingMVC.Finalproject2.Controllers
 
             return View(hotelViewModels);
         }
-
-
 
         // GET: Hotels/Details/{id}
         public async Task<IActionResult> Details(Guid? id)

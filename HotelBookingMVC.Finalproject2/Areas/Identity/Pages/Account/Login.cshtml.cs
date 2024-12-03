@@ -80,17 +80,17 @@ namespace HotelBookingMVC.Finalproject2.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByEmailAsync(Input.Email);
-                    if (await _userManager.IsInRoleAsync(user, "Manager"))
+                    if (await _userManager.IsInRoleAsync(user, "Admin"))
                     {
                         return RedirectToAction("Index", "AdminDashboard");
                     }
-                    else if (await _userManager.IsInRoleAsync(user, "Marketing Coordinator"))
+                    else if (await _userManager.IsInRoleAsync(user, "Manager"))
                     {
-                        return RedirectToAction("Index","MarketingCoordinatorDashboard");
+                        return RedirectToAction("Index","Hotels");
                     }
-                    else if (await _userManager.IsInRoleAsync(user, "Marketing Manager"))
+                    else if (await _userManager.IsInRoleAsync(user, "User"))
                     {
-                        return RedirectToAction("Index", "MarketingManagementDashboard");
+                        return RedirectToAction("Index", "Home");
                     }            
                     else
                     {
@@ -114,7 +114,6 @@ namespace HotelBookingMVC.Finalproject2.Areas.Identity.Pages.Account
                     return Page();
                 }
             }
-
             return Page();
         }
     }

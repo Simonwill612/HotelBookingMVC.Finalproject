@@ -59,6 +59,8 @@ namespace HotelBookingMVC.Finalproject2.ViewModels
         public List<IFormFile>? VideoFiles { get; set; } = new List<IFormFile>();
         public List<IFormFile>? MediaFiles { get; set; } = new List<IFormFile>();
         public List<Guid> ExistingMedia { get; set; } = new List<Guid>();
+        public List<RoomViewModel>? Rooms { get; set; } // Danh sách phòng
+        public string? CreatedByUser { get; set; }
 
 
     }

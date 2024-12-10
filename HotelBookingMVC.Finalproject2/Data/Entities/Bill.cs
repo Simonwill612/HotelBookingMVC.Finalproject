@@ -27,6 +27,10 @@ namespace HotelBookingMVC.Finalproject2.Data.Entities
         public string LastName { get; set; }
 
         [Required]
+        [StringLength(100)]
+        public string Phone { get; set; }
+
+        [Required]
         [EmailAddress]
         public string Email { get; set; }
 

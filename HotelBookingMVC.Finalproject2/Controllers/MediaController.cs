@@ -9,9 +9,12 @@ using Microsoft.EntityFrameworkCore;
 using HotelBookingMVC.Finalproject2.Data;
 using HotelBookingMVC.Finalproject2.Data.Entities;
 using HotelBookingMVC.Finalproject2.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HotelBookingMVC.Finalproject2.Controllers
 {
+    [Authorize(Roles = "Manager")]
+
     public class MediaController : Controller
     {
         private readonly HotelBookingDbContext _context;

@@ -48,5 +48,6 @@ namespace HotelBookingMVC.Finalproject2.ViewModels
 
         [Required(ErrorMessage = "At least one payment must be provided.")]
         public ICollection<PaymentViewModel> Payments { get; set; } = new List<PaymentViewModel>();
+
     }
 }

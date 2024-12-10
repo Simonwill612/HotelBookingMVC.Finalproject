@@ -23,6 +23,9 @@ namespace HotelBookingMVC.Finalproject2.Configuration
             builder.Property(b => b.LastName)
                    .IsRequired()
                    .HasMaxLength(100);
+            builder.Property(b => b.Phone)
+                  .IsRequired()
+                  .HasMaxLength(100);
 
             builder.Property(b => b.Email)
                    .IsRequired()

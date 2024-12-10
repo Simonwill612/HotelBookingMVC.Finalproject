@@ -30,6 +30,7 @@ namespace HotelBookingMVC.Finalproject2.Pages.Account.Manage
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
+            public string PhoneNumber { get; set; }
             public string Address { get; set; }
             public string Address2 { get; set; }
             public string Country { get; set; }
@@ -49,6 +50,7 @@ namespace HotelBookingMVC.Finalproject2.Pages.Account.Manage
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
                 Address = user.Address,
                 Address2 = user.Address2,
                 Country = user.Country,
@@ -91,6 +93,7 @@ namespace HotelBookingMVC.Finalproject2.Pages.Account.Manage
             // Update the other profile details
             user.FirstName = Input.FirstName;
             user.LastName = Input.LastName;
+            user.PhoneNumber = Input.PhoneNumber;
             user.Address = Input.Address;
             user.Address2 = Input.Address2;
             user.Country = Input.Country;

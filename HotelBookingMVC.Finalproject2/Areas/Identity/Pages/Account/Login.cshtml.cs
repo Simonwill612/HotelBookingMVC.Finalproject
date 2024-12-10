@@ -88,7 +88,7 @@ namespace HotelBookingMVC.Finalproject2.Areas.Identity.Pages.Account
                     {
                         return RedirectToAction("Index","Hotels");
                     }
-                    else if (await _userManager.IsInRoleAsync(user, "User"))
+                    else if (await _userManager.IsInRoleAsync(user, "Customer"))
                     {
                         return RedirectToAction("Index", "Home");
                     }            

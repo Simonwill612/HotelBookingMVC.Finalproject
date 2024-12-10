@@ -47,6 +47,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 {
                     CartItemID = i.CartItemID,
                     RoomID = i.RoomID,
+                    RoomNumber = _context.Rooms.FirstOrDefault(r => r.RoomID == i.RoomID)?.RoomNumber ?? "Unknown", // Lấy RoomNumber
                     Price = i.Price,
                     Quantity = i.Quantity,
                     CheckInDate = i.CheckInDate,
@@ -57,6 +58,8 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 Total = cart.CartItems.Sum(i => i.Price) + CalculateTax(cart.CartItems.Sum(item => item.Price))
             };
         }
+
+
 
         [HttpPost]
         public IActionResult AddToCart(Guid productId, decimal price, DateTime checkInDate, DateTime checkOutDate)
@@ -138,216 +141,310 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         [HttpPost]
         public IActionResult RemoveFromCart(Guid cartItemId)
         {
+            // Lấy giỏ hàng từ session
             var cart = GetCart();
-            var item = cart?.CartItems.FirstOrDefault(i => i.CartItemID == cartItemId);
+            if (cart == null || cart.CartItems == null)
+            {
+                return Json(new { success = false, message = "Cart is empty or not found." });
+            }
 
+            // Tìm mục cần xóa trong giỏ hàng
+            var item = cart.CartItems.FirstOrDefault(i => i.CartItemID == cartItemId);
             if (item == null)
-                return Json(new { success = false, message = "Item not found." });
+            {
+                return Json(new { success = false, message = "Item not found in the cart." });
+            }
 
+            // Xóa mục khỏi giỏ hàng
             cart.CartItems.Remove(item);
+
+            // Cập nhật lại giỏ hàng trong session
             UpdateCart(cart);
 
             return Json(new { success = true, message = "Item removed from cart." });
         }
 
-        // Tạo hóa đơn
+
         public async Task<IActionResult> ShowBill()
         {
+            // Fetch the current cart
             var cart = GetCart();
 
-            // If the cart is empty, redirect to home
+            // Redirect to the home page if the cart is empty
             if (cart == null || !cart.CartItems.Any())
             {
+                TempData["Message"] = "Your cart is empty!";
                 return RedirectToAction("Index", "Home");
             }
 
-            // Fetch the logged-in user details
-            var userId = _userManager.GetUserId(User); // Get the user's ID
-            var user = await _userManager.FindByIdAsync(userId); // Get the user from UserManager
-
-            // Create the OrderViewModel and populate it with user details and cart items
-            var orderViewModel = new OrderViewModel
+            // Get the logged-in user's ID
+            var userId = _userManager.GetUserId(User);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
             {
-                CartItems = cart.CartItems.Select(item => new CartItemViewModel
+                TempData["Error"] = "User not found. Please log in.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var rooms = await _context.Rooms
+                .Include(r => r.RoomMediaDetails) // Include RoomMediaDetails
+                    .ThenInclude(rmd => rmd.Media) // Include the Media for each RoomMediaDetail
+                .ToListAsync();
+
+            var cartItems = cart.CartItems.Select(item =>
+            {
+                var room = rooms.FirstOrDefault(r => r.RoomID == item.RoomID);
+                var mediaUrl = room?.RoomMediaDetails
+                    .Where(rmd => rmd.Media != null && !string.IsNullOrEmpty(rmd.Media.FileName)) // Ensure valid media
+                    .Select(rmd => rmd.Media.FileName) // Get the media file name
+                    .FirstOrDefault(); // Get the first media file
+
+                return new CartItemViewModel
                 {
                     CartItemID = item.CartItemID,
                     RoomID = item.RoomID,
                     Price = item.Price,
                     Quantity = item.Quantity,
                     CheckInDate = item.CheckInDate,
-                    CheckOutDate = item.CheckOutDate
-                }).ToList(),
-                SubTotal = cart.CartItems.Sum(item => item.Price),
-                Tax = CalculateTax(cart.CartItems.Sum(item => item.Price)),
-                Total = cart.CartItems.Sum(item => item.Price) + CalculateTax(cart.CartItems.Sum(item => item.Price)),
-                FirstName = user?.FirstName ?? string.Empty, // Assuming you have these properties in your user entity
-                LastName = user?.LastName ?? string.Empty,
-                Email = user?.Email ?? string.Empty,
-                Address = user?.Address ?? string.Empty,
-                Address2 = user?.Address2 ?? string.Empty,
-                Country = user?.Country ?? string.Empty,
-                State = user?.State ?? string.Empty,
-                Zip = user?.Zip ?? string.Empty,
+                    CheckOutDate = item.CheckOutDate,
+                    RoomNumber = room?.RoomNumber,
+                    FilePath = mediaUrl // Use the media URL here instead of ImagePath
+                };
+            }).ToList();
+
+            // Calculate totals
+            var subTotal = cartItems.Sum(item => item.Price * item.Quantity);
+            var tax = CalculateTax(subTotal);
+            var total = subTotal + tax;
+
+            var orderViewModel = new OrderViewModel
+            {
+                CartItems = cartItems,
+                SubTotal = subTotal,
+                Tax = tax,
+                Total = total,
+                FirstName = user.FirstName ?? string.Empty,
+                LastName = user.LastName ?? string.Empty,
+                Phone = user.Phone ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                Address = user.Address ?? string.Empty,
+                Address2 = user.Address2 ?? string.Empty,
+                Country = user.Country ?? string.Empty,
+                State = user.State ?? string.Empty,
+                Zip = user.Zip ?? string.Empty,
                 IsShippingSameAsBilling = false
             };
 
             return View(orderViewModel);
         }
 
+
         [HttpPost]
         [Route("Cart/ProcessPayment")]
-        public async Task<IActionResult> ProcessPayment(OrderViewModel billingInfo, PaymentViewModel paymentInfo) // Accept updated billing info from the form
+        public async Task<IActionResult> ProcessPayment(OrderViewModel billingInfo, PaymentViewModel paymentInfo)
         {
+            // Lấy giỏ hàng hiện tại
             var cart = GetCart();
             if (cart == null || !cart.CartItems.Any())
             {
                 return Json(new { success = false, message = "Your cart is empty." });
             }
 
-            // Simulate payment processing logic (replace with actual payment gateway if needed)
-            bool paymentSuccess = SimulatePayment();
+            // Kiểm tra thông tin thẻ tín dụng
+            var cardNumberValid = Regex.IsMatch(paymentInfo.CardNumber, @"^\d{16}$");
+            var cvvValid = Regex.IsMatch(paymentInfo.CVV, @"^\d{3}$");
+            var expirationDateValid = Regex.IsMatch(paymentInfo.ExpirationDate, @"^(0[1-9]|1[0-2])\/?([0-9]{2})$");
+            var cardNameValid = !string.IsNullOrEmpty(paymentInfo.CardName);
 
-            if (!paymentSuccess)
+            if (!cardNumberValid || !cvvValid || !expirationDateValid || !cardNameValid)
             {
-                return Json(new { success = false, message = "Payment failed. Please try again." });
+                return Json(new { success = false, message = "Invalid card details. Please check and try again." });
             }
 
-            var userId = _userManager.GetUserId(User); // Get the logged-in user's ID
-            var user = await _userManager.FindByIdAsync(userId); // Get the user from UserManager
-
-            try
+            // Lấy thông tin người dùng hiện tại
+            var userId = _userManager.GetUserId(User);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
             {
-                // Update user's billing information if modified
-                user.FirstName = billingInfo.FirstName;
-                user.LastName = billingInfo.LastName;
-                user.Email = billingInfo.Email;
-                user.Address = billingInfo.Address;
-                user.Address2 = billingInfo.Address2;
-                user.Country = billingInfo.Country;
-                user.State = billingInfo.State;
-                user.Zip = billingInfo.Zip;
+                return Json(new { success = false, message = "User not found." });
+            }
 
-                // Create a new Order for the cart
-                var order = new Order
+            // Tạo giao dịch để đảm bảo tính toàn vẹn
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = userId,
-                    DateCreated = DateTime.Now,
-                    SubTotal = cart.CartItems.Sum(item => item.Price),
-                    Tax = CalculateTax(cart.CartItems.Sum(item => item.Price)), // Placeholder tax calculation
-                    Total = cart.CartItems.Sum(item => item.Price) + CalculateTax(cart.CartItems.Sum(item => item.Price)),
-                    Phone = user.PhoneNumber, // Correct way to get PhoneNumber from user object
-                    Address = user.Address, // Use the updated address from the form
-                    BillID = Guid.NewGuid() // Placeholder, use actual bill ID
-                };
+                    // Cập nhật thông tin người dùng
+                    user.FirstName = billingInfo.FirstName;
+                    user.LastName = billingInfo.LastName;
+                    user.PhoneNumber = billingInfo.Phone;
+                    user.Email = billingInfo.Email;
+                    user.Address = billingInfo.Address;
+                    user.Address2 = billingInfo.Address2;
+                    user.Country = billingInfo.Country;
+                    user.State = billingInfo.State;
+                    user.Zip = billingInfo.Zip;
 
-                // Save the Order
-                _context.Orders.Add(order);
-                // Update user in the database using UserManager
-                var result = await _userManager.UpdateAsync(user);
-                if (!result.Succeeded)
-                {
-                    return Json(new { success = false, message = "Failed to update user information." });
-                }
-
-                // Create a Bill for the Order, using updated billing info
-                var bill = new Bill
-                {
-                    BillID = order.BillID,
-                    UserID = userId,
-                    FirstName = billingInfo.FirstName,
-                    LastName = billingInfo.LastName,
-                    Email = billingInfo.Email,
-                    Address = billingInfo.Address,
-                    Address2 = billingInfo.Address2,
-                    Country = billingInfo.Country,
-                    State = billingInfo.State,
-                    Zip = billingInfo.Zip,
-                    OrderId = order.Id,
-                    IsShippingSameAsBilling = billingInfo.IsShippingSameAsBilling,
-                    DateCreatedAt = DateTime.Now
-                };
-
-                _context.Bills.Add(bill);
-
-                // Loop through the cart items and create bookings and payments
-                foreach (var cartItem in cart.CartItems)
-                {
-                    // Get the room from the database using RoomID to find the RoomNumber
-                    var room = await _context.Rooms.FirstOrDefaultAsync(r => r.RoomID == cartItem.RoomID);
-                    if (room == null)
+                    var updateResult = await _userManager.UpdateAsync(user);
+                    if (!updateResult.Succeeded)
                     {
-                        return Json(new { success = false, message = $"Room with ID {cartItem.RoomID} not found." });
+                        throw new Exception("Failed to update user information.");
                     }
 
-                    // Create and save the booking
-                    var booking = new Booking
+                    // Tạo Order
+                    var order = new Order
                     {
-                        BookingID = Guid.NewGuid(),
+                        Id = Guid.NewGuid(),
+                        UserId = userId,
+                        DateCreated = DateTime.Now,
+                        SubTotal = cart.CartItems.Sum(item => item.Price * item.Quantity),
+                        Tax = CalculateTax(cart.CartItems.Sum(item => item.Price * item.Quantity)),
+                        Total = cart.CartItems.Sum(item => item.Price * item.Quantity) + CalculateTax(cart.CartItems.Sum(item => item.Price * item.Quantity)),
+                        Phone = user.PhoneNumber,
+                        Address = user.Address,
+                        BillID = Guid.NewGuid()
+                    };
+
+                    _context.Orders.Add(order);
+
+                    // Tạo Bill
+                    var bill = new Bill
+                    {
+                        BillID = order.BillID,
                         UserID = userId,
-                        RoomID = cartItem.RoomID,
-                        CheckInDate = cartItem.CheckInDate,
-                        CheckOutDate = cartItem.CheckOutDate,
-                        TotalPrice = cartItem.Price + CalculateTax(cartItem.Price),
-                        Status = "Confirmed",
-                        BookingDate = DateTime.Now
+                        FirstName = billingInfo.FirstName,
+                        LastName = billingInfo.LastName,
+                        Phone = billingInfo.Phone,
+                        Email = billingInfo.Email,
+                        Address = billingInfo.Address,
+                        Address2 = billingInfo.Address2,
+                        Country = billingInfo.Country,
+                        State = billingInfo.State,
+                        Zip = billingInfo.Zip,
+                        OrderId = order.Id,
+                        IsShippingSameAsBilling = billingInfo.IsShippingSameAsBilling,
+                        DateCreatedAt = DateTime.Now
                     };
 
-                    _context.Bookings.Add(booking);
+                    _context.Bills.Add(bill);
 
-                    // Create and save the payment
-                    var payment = new Payment
+                    // Tạo Booking và Payment cho mỗi CartItem
+                    foreach (var cartItem in cart.CartItems)
                     {
-                        PaymentID = Guid.NewGuid(),
-                        BookingID = booking.BookingID,
-                        Amount = booking.TotalPrice,
-                        PaymentMethod = "Credit Card", // Assuming credit card here
-                        PaymentStatus = "Completed",
-                        PaymentDate = DateTime.Now
-                    };
+                        var room = await _context.Rooms.FirstOrDefaultAsync(r => r.RoomID == cartItem.RoomID);
+                        if (room == null)
+                        {
+                            throw new Exception($"Room with ID {cartItem.RoomID} not found.");
+                        }
 
-                    _context.Payments.Add(payment);
-                }
+                        var booking = new Booking
+                        {
+                            BookingID = Guid.NewGuid(),
+                            UserID = userId,
+                            RoomID = cartItem.RoomID,
+                            CheckInDate = cartItem.CheckInDate,
+                            CheckOutDate = cartItem.CheckOutDate,
+                            TotalPrice = cartItem.Price * cartItem.Quantity + CalculateTax(cartItem.Price * cartItem.Quantity),
+                            Status = "Confirmed",
+                            BookingDate = DateTime.Now
+                        };
 
-                // Save all changes to the database
-                await _context.SaveChangesAsync();
+                        _context.Bookings.Add(booking);
 
-                // Validate card details format using regex
-                var cardNumberValid = Regex.IsMatch(paymentInfo.CardNumber, @"^\d{16}$");
-                var cvvValid = Regex.IsMatch(paymentInfo.CVV, @"^\d{3}$");
-                var expirationDateValid = Regex.IsMatch(paymentInfo.ExpirationDate, @"^(0[1-9]|1[0-2])\/?([0-9]{2})$");
-                var cardNameValid = !string.IsNullOrEmpty(paymentInfo.CardName);
+                        var payment = new Payment
+                        {
+                            PaymentID = Guid.NewGuid(),
+                            BookingID = booking.BookingID,
+                            Amount = booking.TotalPrice,
+                            PaymentMethod = "Credit Card",
+                            PaymentStatus = "Completed",
+                            PaymentDate = DateTime.Now
+                        };
 
-                if (cardNumberValid && cvvValid && expirationDateValid && cardNameValid)
-                {
-                    // Send a confirmation email to the user
+                        _context.Payments.Add(payment);
+                    }
+
+                    // Lưu toàn bộ thay đổi
+                    await _context.SaveChangesAsync();
+
+                    // Commit giao dịch
+                    await transaction.CommitAsync();
+
+                    await NotifyHotelManager(cart);
+
+                    // Gửi email xác nhận
                     await SendConfirmationEmail(cart);
 
-                    // Clear the cart after a successful payment
+                    // Xóa giỏ hàng sau khi thanh toán thành công
                     ClearCart();
 
-                    // Return success message
                     return Json(new { success = true, message = "Payment successful and booking confirmed." });
                 }
-                else
+                catch (Exception ex)
                 {
-                    // Invalid card details
-                    return Json(new { success = false, message = "Invalid card details. Please check and try again." });
+                    // Hoàn tác giao dịch nếu có lỗi
+                    await transaction.RollbackAsync();
+                    return Json(new { success = false, message = $"An error occurred: {ex.Message}" });
                 }
             }
-            catch (Exception ex)
+        }
+
+
+
+        private async Task NotifyHotelManager(CartViewModel cart)
+        {
+            // Lấy danh sách các HotelID từ giỏ hàng
+            var hotelIds = cart.CartItems
+                .Select(item => _context.Rooms.FirstOrDefault(r => r.RoomID == item.RoomID)?.HotelID)
+                .Distinct()
+                .ToList();
+
+            foreach (var hotelId in hotelIds)
             {
-                // Log the exception (if needed)
-                return Json(new { success = false, message = "An error occurred during the booking process. Please try again." });
+                // Tìm khách sạn dựa trên HotelID
+                var hotel = await _context.Hotels.FirstOrDefaultAsync(h => h.HotelID == hotelId);
+                if (hotel == null || string.IsNullOrEmpty(hotel.UserID)) continue;
+
+                // Lấy thông tin người quản lý (manager) dựa trên UserID
+                var manager = await _userManager.FindByIdAsync(hotel.UserID);
+                if (manager == null || string.IsNullOrEmpty(manager.Email)) continue;
+
+                var managerEmail = manager.Email;
+                var managerName = manager.UserName; // Thay đổi nếu bạn có thuộc tính khác phù hợp hơn
+
+                // Tạo chuỗi nội dung email
+                var subject = $"[Booking Notification] New Booking for Hotel: {hotel.Name}";
+                var body = $@"
+                Dear {managerName},
+
+                A new booking has been made for your hotel '{hotel.Name}'.
+
+                Booking Details:
+                - Rooms: {string.Join(", ", cart.CartItems.Select(i => i.RoomID))}
+                ";
+
+                // Thêm thông tin chi tiết các phòng vào email body
+                foreach (var item in cart.CartItems)
+                {
+                    body += $@"
+                  - Room {item.RoomID}, from {item.CheckInDate.ToShortDateString() ?? "N/A"} to {item.CheckOutDate.ToShortDateString() ?? "N/A"}
+    ";
+                }
+
+                body += $@"
+                Total Amount: {cart.Total:C}
+
+                Please log in to the system for more details.
+
+                Best regards,
+                Hotel Booking System
+                ";
+
+                // Gửi email
+                await _emailSender.SendEmailAsync(managerEmail, subject, body);
             }
         }
 
-
-        // Simulate payment (replace with actual payment logic)
-        private bool SimulatePayment()
-        {
-            return true; // Always return success for simulation purposes
-        }
 
 
 
@@ -375,11 +472,33 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         }
 
 
+        [HttpGet]
+        public IActionResult GetCartQuantity()
+        {
+            var cart = GetCart();
+            var quantity = cart?.CartItems.Sum(item => item.Quantity) ?? 0; // Tổng số lượng sản phẩm
+            return Json(new { quantity });
+        }
+
         private CartViewModel GetCart()
         {
             var cartJson = HttpContext.Session.GetString(CartSessionKey);
-            return string.IsNullOrEmpty(cartJson) ? null : JsonConvert.DeserializeObject<CartViewModel>(cartJson);
+            var cart = string.IsNullOrEmpty(cartJson) ? null : JsonConvert.DeserializeObject<CartViewModel>(cartJson);
+
+            if (cart?.CartItems != null)
+            {
+                foreach (var item in cart.CartItems)
+                {
+                    if (item.Quantity == 0)
+                    {
+                        item.Quantity = 1; 
+                    }
+                }
+            }
+
+            return cart;
         }
+
 
         private void UpdateCart(CartViewModel cart)
         {

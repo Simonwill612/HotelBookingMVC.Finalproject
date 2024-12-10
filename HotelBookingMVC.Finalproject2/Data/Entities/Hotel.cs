@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HotelBookingMVC.Finalproject2.Data.Entities
 {
@@ -57,5 +58,8 @@ namespace HotelBookingMVC.Finalproject2.Data.Entities
         public virtual ICollection<HotelMediaDetail> HotelMediaDetails { get; set; }
         public virtual ICollection<Promotion> Promotions { get; set; }
         public virtual ICollection<Feedback> Feedbacks { get; set; }
+
+        [NotMapped]
+        public object CreatedByUser { get; set; }
     }
 }

@@ -1,115 +1,151 @@
 ﻿@model HotelBookingMVC.Finalproject2.ViewModels.OrderViewModel
+@{
+    Layout = "~/Views/Shared/CheckOutLayout.cshtml";
+    ViewData["Title"] = "Checkout - Greenwich Booking";
+}
 
-<h2>Billing Information</h2>
+<main>
+    <div class="container">
+        <div class="checkoutLayout pb-4 d-xl-flex justify-content-around d-md-block">
+            <!-- Product List Section -->
+            <div class="returnCart w-100 p-xl-5">
+                <h1>List Product in Cart</h1>
+                <div class="list">
+                    @foreach (var item in Model.CartItems)
+                    {
+                        <div class="item d-flex align-items-center justify-content-between mb-4 p-3 rounded shadow-sm bg-white">
+                            <!-- Product Image -->
+                            <img src="@Url.Content("~/media/room/img/" + item.FilePath)" alt="Room Image" class="room-image">
 
-<form id="billingForm">
-    @Html.AntiForgeryToken() <!-- CSRF Token for ASP.NET Core -->
+                            <!-- Product Info -->
+                            <div class="info ms-4">
+                                <div class="name fw-bold">Room Number: @item.RoomNumber</div>
+                                <div class="price text-muted">@item.Price.ToString("C")/@item.Quantity ROOM</div>
+                                <div class="dates mt-2">
+                                    <span class="d-block"><strong>Check-In:</strong> @item.CheckInDate.ToString("yyyy-MM-dd")</span>
+                                    <span class="d-block"><strong>Check-Out:</strong> @item.CheckOutDate.ToString("yyyy-MM-dd")</span>
+                                </div>
+                            </div>
 
-    <div class="form-group">
-        <label for="FirstName">First Name</label>
-        <input type="text" id="FirstName" name="FirstName" class="form-control" value="@Model.FirstName" required />
-    </div>
-    <div class="form-group">
-        <label for="LastName">Last Name</label>
-        <input type="text" id="LastName" name="LastName" class="form-control" value="@Model.LastName" required />
-    </div>
-    <div class="form-group">
-        <label for="Email">Email</label>
-        <input type="email" id="Email" name="Email" class="form-control" value="@Model.Email" required />
-    </div>
-    <div class="form-group">
-        <label for="Address">Address</label>
-        <input type="text" id="Address" name="Address" class="form-control" value="@Model.Address" required />
-    </div>
-    <div class="form-group">
-        <label for="Address2">Address Line 2</label>
-        <input type="text" id="Address2" name="Address2" class="form-control" value="@Model.Address2" />
-    </div>
-    <div class="form-group">
-        <label for="Country">Country</label>
-        <input type="text" id="Country" name="Country" class="form-control" value="@Model.Country" required />
-    </div>
-    <div class="form-group">
-        <label for="State">State</label>
-        <input type="text" id="State" name="State" class="form-control" value="@Model.State" required />
-    </div>
-    <div class="form-group">
-        <label for="Zip">Zip Code</label>
-        <input type="text" id="Zip" name="Zip" class="form-control" value="@Model.Zip" required />
-    </div>
-    <div class="form-check">
-        <input type="checkbox" id="IsShippingSameAsBilling" name="IsShippingSameAsBilling" class="form-check-input" @(Model.IsShippingSameAsBilling ? "checked" : "") />
-        <label for="IsShippingSameAsBilling" class="form-check-label">Shipping address is the same as billing</label>
-    </div>
-    <div class="form-check">
-        <input type="checkbox" id="SaveInfoForNextTime" name="SaveInfoForNextTime" class="form-check-input" @(Model.SaveInfoForNextTime ? "checked" : "") />
-        <label for="SaveInfoForNextTime" class="form-check-label">Save this information for next time</label>
-    </div>
+                            <!-- Total Price for Item -->
+                            <div class="returnPrice fw-bold text-end">
+                                $@(item.Price * item.Quantity)
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <!-- Billing Information Section -->
+            <div class="right w-100">
+                <h1>Billing Information</h1>
+                <form id="billingForm">
+                    @Html.AntiForgeryToken()
 
-    <!-- Button to trigger the payment modal -->
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#paymentModal">
-        Proceed to Payment
-    </button>
+                    <div class="form-group">
+                        <label for="FirstName">First Name</label>
+                        <input type="text" id="FirstName" name="FirstName" class="form-control" value="@Model.FirstName" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="LastName">Last Name</label>
+                        <input type="text" id="LastName" name="LastName" class="form-control" value="@Model.LastName" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="Phone">Phone</label>
+                        <input type="tel" id="Phone" name="Phone" class="form-control" value="@Model.Phone" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="Email">Email</label>
+                        <input type="email" id="Email" name="Email" class="form-control" value="@Model.Email" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="Address">Address</label>
+                        <input type="text" id="Address" name="Address" class="form-control" value="@Model.Address" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="Address2">Address Line 2</label>
+                        <input type="text" id="Address2" name="Address2" class="form-control" value="@Model.Address2" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Country">Country</label>
+                        <input type="text" id="Country" name="Country" class="form-control" value="@Model.Country" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="State">State</label>
+                        <input type="text" id="State" name="State" class="form-control" value="@Model.State" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="Zip">Zip Code</label>
+                        <input type="text" id="Zip" name="Zip" class="form-control" value="@Model.Zip" required />
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="IsShippingSameAsBilling" name="IsShippingSameAsBilling" class="form-check-input" @(Model.IsShippingSameAsBilling ? "checked" : "") />
+                        <label for="IsShippingSameAsBilling" class="form-check-label">Shipping address is the same as billing</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="SaveInfoForNextTime" name="SaveInfoForNextTime" class="form-check-input" @(Model.SaveInfoForNextTime ? "checked" : "") />
+                        <label for="SaveInfoForNextTime" class="form-check-label">Save this information for next time</label>
+                    </div>
 
-    <!-- Payment modal -->
-    <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="paymentModalLabel">Card Information</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                  
+
+                    <!-- Button to trigger payment modal -->
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                        Proceed to Payment
                     </button>
-                </div>
-                <div class="modal-body">
-                    <form id="paymentForm">
-                        <div class="form-group">
-                            <label for="CardName">Cardholder Name</label>
-                            <input type="text" id="CardName" name="CardName" class="form-control" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="CardNumber">Card Number</label>
-                            <input type="text" id="CardNumber" name="CardNumber" class="form-control" maxlength="16" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="ExpirationDate">Expiration Date (MM/YY)</label>
-                            <input type="text" id="ExpirationDate" name="ExpirationDate" class="form-control" maxlength="5" placeholder="MM/YY" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="CVV">CVV</label>
-                            <input type="text" id="CVV" name="CVV" class="form-control" maxlength="3" required />
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <!-- Button to confirm payment -->
-                    <button type="button" class="btn btn-primary" id="confirmPayment">Confirm Payment</button>
-                </div>
+                </form>
             </div>
         </div>
     </div>
-</form>
+</main>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Card Information</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label for="CardName">Cardholder Name</label>
+                        <input type="text" id="CardName" name="CardName" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="CardNumber">Card Number</label>
+                        <input type="text" id="CardNumber" name="CardNumber" class="form-control" maxlength="16" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="ExpirationDate">Expiration Date (MM/YY)</label>
+                        <input type="text" id="ExpirationDate" name="ExpirationDate" class="form-control" maxlength="5" placeholder="MM/YY" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="CVV">CVV</label>
+                        <input type="text" id="CVV" name="CVV" class="form-control" maxlength="3" required />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmPayment">Confirm Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-    <!-- Include Bootstrap and jQuery dependencies -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
     <script>
-        $(document).ready(function() {
-            // When "Confirm Payment" button is clicked
-            $('#confirmPayment').on('click', function(event) {
-                event.preventDefault(); // Prevent form submission
-
-                // Get card details
+        $(document).ready(function () {
+            $('#confirmPayment').on('click', function (event) {
+                event.preventDefault();
                 var cardName = $('#CardName').val();
                 var cardNumber = $('#CardNumber').val();
                 var expirationDate = $('#ExpirationDate').val();
                 var cvv = $('#CVV').val();
 
-                // Validate card details
                 if (cardNumber.length !== 16 || isNaN(cardNumber)) {
                     alert('Card number must be 16 digits.');
                     return;
@@ -126,10 +162,10 @@
                     return;
                 }
 
-                // Collect billing form data manually
                 var billingData = {
                     firstName: $('#FirstName').val(),
                     lastName: $('#LastName').val(),
+                    phone: $('#Phone').val(),
                     email: $('#Email').val(),
                     address: $('#Address').val(),
                     address2: $('#Address2').val(),
@@ -140,7 +176,6 @@
                     saveInfoForNextTime: $('#SaveInfoForNextTime').is(':checked')
                 };
 
-                // Collect payment data
                 var paymentData = {
                     cardName: cardName,
                     cardNumber: cardNumber,
@@ -148,7 +183,6 @@
                     cvv: cvv
                 };
 
-                // Send data to the server via AJAX
                 $.ajax({
                     url: '@Url.Action("ProcessPayment", "Cart")',
                     type: 'POST',
@@ -159,15 +193,15 @@
                         billingInfo: billingData,
                         paymentInfo: paymentData
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             alert(response.message);
-                            window.location.href = '/Booking/Confirmation'; // Redirect to confirmation
+                            window.location.href = '/Booking/Confirmation';
                         } else {
                             alert(response.message);
                         }
                     },
-                    error: function() {
+                    error: function () {
                         alert('An error occurred while processing the payment. Please try again.');
                     }
                 });

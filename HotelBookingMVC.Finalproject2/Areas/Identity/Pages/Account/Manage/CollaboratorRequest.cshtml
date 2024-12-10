@@ -1,0 +1,67 @@
+﻿@page
+@model _1640WebDevUMC.Areas.Identity.Pages.Account.Manage.CollaboratorRequestModel
+@{
+    ViewData["Title"] = "Collaborator Request";
+    ViewData["ActivePage"] = "./CollaboratorRequest";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <h2 class="text-center mb-3">@ViewData["Title"]</h2>
+            <hr />
+
+            <form method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="FullName" class="form-label">Full Name</label>
+                    <input type="text" id="FullName" name="FullName" class="form-control" value="@Model.FullName" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label for="Email" class="form-label">Email</label>
+                    <input type="email" id="Email" name="Email" class="form-control" value="@Model.Email" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label for="Phone" class="form-label">Phone Number</label>
+                    <input type="tel" id="Phone" name="Phone" class="form-control" value="@Model.Phone" placeholder="Enter your phone number" required />
+                    <div class="invalid-feedback">Please enter a valid phone number.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="Reason" class="form-label">Reason for Becoming a Collaborator</label>
+                    <textarea id="Reason" name="Reason" class="form-control" rows="4" placeholder="Share your reasons" required></textarea>
+                    <div class="invalid-feedback">Please provide your reason.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ProfilePicture" class="form-label">Profile Picture (Optional)</label>
+                    <input type="file" id="ProfilePicture" name="ProfilePicture" class="form-control" accept="image/*" />
+                    <small class="form-text text-muted">Please upload images in .jpg, .png, or .jpeg format.</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Submit Request</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            'use strict';
+            window.addEventListener('load', function () {
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+}

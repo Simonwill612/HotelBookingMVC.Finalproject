@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HotelBookingMVC.Finalproject2.Data.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace HotelBookingMVC.Finalproject2.ViewModels
 {
@@ -14,5 +15,6 @@ namespace HotelBookingMVC.Finalproject2.ViewModels
 
         [DataType(DataType.Date)]
         public DateTime CheckOutDate { get; set; }
-    }
+        public string FilePath { get; set; } // Add this line
+        }
 }

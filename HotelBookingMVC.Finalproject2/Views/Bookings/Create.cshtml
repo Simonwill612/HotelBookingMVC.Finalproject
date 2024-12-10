@@ -1,0 +1,33 @@
+﻿@model HotelBookingMVC.Finalproject2.ViewModels.BookingViewModel
+
+@{
+    ViewData["Title"] = "Booking Details";
+}
+
+<h1>Booking Details</h1>
+
+<div>
+    <h4>Booking</h4>
+    <dl class="row">
+        <dt class="col-sm-2">Room Number</dt>
+        <dd class="col-sm-10">@Model.RoomNumber</dd>
+
+        <dt class="col-sm-2">Booking Date</dt>
+        <dd class="col-sm-10">@Model.BookingDate.ToShortDateString()</dd>
+
+        <dt class="col-sm-2">Check-In</dt>
+        <dd class="col-sm-10">@Model.CheckInDate.ToShortDateString()</dd>
+
+        <dt class="col-sm-2">Check-Out</dt>
+        <dd class="col-sm-10">@Model.CheckOutDate.ToShortDateString()</dd>
+
+        <dt class="col-sm-2">Total Price</dt>
+        <dd class="col-sm-10">@Model.TotalPrice.ToString("C")</dd>
+
+        <dt class="col-sm-2">Status</dt>
+        <dd class="col-sm-10">@Model.Status</dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

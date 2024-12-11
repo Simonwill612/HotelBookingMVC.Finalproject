@@ -1,11 +1,15 @@
 ﻿using HotelBookingMVC.Finalproject2.Data;
 using HotelBookingMVC.Finalproject2.Models;
 using HotelBookingMVC.Finalproject2.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+
+[Authorize(Roles = "Admin")]
 
 public class AdminDashboardController : Controller
 {
@@ -28,7 +32,7 @@ public class AdminDashboardController : Controller
     // Method to ensure roles exist
     private async Task EnsureRolesExistAsync()
     {
-        var roles = new[] { "Admin", "User", "Manager" }; // Add other roles as necessary
+        var roles = new[] { "Admin", "Customer", "Manager" }; 
 
         foreach (var role in roles)
         {
@@ -55,7 +59,6 @@ public class AdminDashboardController : Controller
                 continue;
             }
 
-            // Check if user has 'Manager' role
             if (roles.Contains("Manager"))
             {
                 managerData.Add(new UserViewModel
@@ -63,22 +66,28 @@ public class AdminDashboardController : Controller
                     Id = user.Id,
                     Email = user.Email,
                     EmailConfirmed = user.EmailConfirmed,
-                    Roles = roles
+                    Roles = roles,
+                    ProfilePictureFileName = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                        ? "default.png" // Fallback image if none is uploaded
+                        : user.ProfilePictureFileName
                 });
             }
-            else // Assuming the default role is customer or null
+            else
             {
                 customerData.Add(new UserViewModel
                 {
                     Id = user.Id,
                     Email = user.Email,
                     EmailConfirmed = user.EmailConfirmed,
-                    Roles = roles
+                    Roles = roles,
+                    ProfilePictureFileName = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                        ? "default.png"
+                        : user.ProfilePictureFileName
                 });
             }
         }
 
-        var viewModel = new
+        var viewModel = new AdminDashboardViewModel
         {
             Customers = customerData,
             Managers = managerData

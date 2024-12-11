@@ -8,8 +8,33 @@
     <div class="container">
         <div class="checkoutLayout pb-4 d-xl-flex justify-content-around d-md-block">
             <!-- Product List Section -->
-            
+            <div class="returnCart w-100 p-xl-5">
+                <h1>List Product in Cart</h1>
+                <div class="list">
+                    @foreach (var item in Model.CartItems)
+                    {
+                        <div class="item d-flex align-items-center justify-content-between mb-4 p-3 rounded shadow-sm bg-white">
+                            <!-- Product Image -->
+                            <img src="@Url.Content("~/media/room/img/" + item.FilePath)" alt="Room Image" class="room-image">
 
+                            <!-- Product Info -->
+                            <div class="info ms-4">
+                                <div class="name fw-bold">Room Number: @item.RoomNumber</div>
+                                <div class="price text-muted">@item.Price.ToString("C")/@item.Quantity ROOM</div>
+                                <div class="dates mt-2">
+                                    <span class="d-block"><strong>Check-In:</strong> @item.CheckInDate.ToString("yyyy-MM-dd")</span>
+                                    <span class="d-block"><strong>Check-Out:</strong> @item.CheckOutDate.ToString("yyyy-MM-dd")</span>
+                                </div>
+                            </div>
+
+                            <!-- Total Price for Item -->
+                            <div class="returnPrice fw-bold text-end">
+                                $@(item.Price * item.Quantity)
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
             <!-- Billing Information Section -->
             <div class="right w-100">
                 <h1>Billing Information</h1>
@@ -23,6 +48,10 @@
                     <div class="form-group">
                         <label for="LastName">Last Name</label>
                         <input type="text" id="LastName" name="LastName" class="form-control" value="@Model.LastName" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="Phone">Phone</label>
+                        <input type="tel" id="Phone" name="Phone" class="form-control" value="@Model.Phone" required />
                     </div>
                     <div class="form-group">
                         <label for="Email">Email</label>
@@ -57,17 +86,7 @@
                         <label for="SaveInfoForNextTime" class="form-check-label">Save this information for next time</label>
                     </div>
 
-                    <!-- Summary Section -->
-                    <div class="return">
-                        <div class="row">
-                            <div>Total Quantity</div>
-                            <div class="totalQuantity">70</div>
-                        </div>
-                        <div class="row">
-                            <div>Total Price</div>
-                            <div class="totalPrice">$900</div>
-                        </div>
-                    </div>
+                  
 
                     <!-- Button to trigger payment modal -->
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">
@@ -146,6 +165,7 @@
                 var billingData = {
                     firstName: $('#FirstName').val(),
                     lastName: $('#LastName').val(),
+                    phone: $('#Phone').val(),
                     email: $('#Email').val(),
                     address: $('#Address').val(),
                     address2: $('#Address2').val(),

@@ -8,9 +8,12 @@ using System;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HotelBookingMVC.Finalproject2.Controllers
 {
+    [Authorize(Roles = "Admin")]
+
     public class PromotionsController : Controller
     {
         private readonly HotelBookingDbContext _context;

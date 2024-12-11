@@ -51,6 +51,15 @@
                                 <div class="totalQuality">0</div> <!-- Số lượng sẽ được cập nhật -->
                             </div>
                         </li>
+                        <div class="dark_mode d-flex align-items-center justify-content-between" style="padding: 10px;">
+                            <span class="text-dark">Hello, @User.Identity?.Name!</span>
+
+                            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                <button type="submit" class="btn btn-primary">Logout</button>
+                            </form>
+
+                          
+                        </div>
 
                         <li>
                             <a href="/Identity/Account/Login">
@@ -85,29 +94,33 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="@Url.Action("Index", "Hotel")">
+                                    <a class="nav-link" href="@Url.Action("Hotels", "Home")">
                                         <i class="fa-solid fa-hotel"></i> Hotel
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="fa-solid fa-fire"></i><span> Hot Deals</span>
-                                    </a>
-                                </li>
+                                
                                 <li class="nav-item">
                                     <a class="nav-link" href="@Url.Action("Contact", "Home")">
                                         <i class="fa-solid fa-phone"></i><span> Contact</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="fa-solid fa-comment"></i><span> Feedback</span>
+                                    <a class="nav-link" href="~/Home/AboutUs">
+                                        <i class="fa-solid fa-comment"></i><span> About Us</span>
                                     </a>
                                 </li>
                                 <li>
                                     <button class="dark_mode_1" id="switch-mode_1">
                                         <i class="bi bi-moon-stars-fill"></i>
                                     </button>
+                                </li>
+                                <li >
+                                    <div class="dark_mode_1">
+                                    <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage" style=" margin-right: 30px">Hello @User.Identity?.Name!</a>
+                                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                        <button type="submit" class="btn btn-primary">Logout</button>
+                                    </form>
+                                    </div>
                                 </li>
                             </ul>
                         </div>
@@ -126,19 +139,75 @@
         <div class="footer1">
             <div class="container">
                 <div class="contact_content d-flex row">
-                    <!-- Footer content -->
+                    <div class="contact_item col-sm-12 col-md-12 col-xl-6">
+                        <h2>Contact information</h2>
+                        <ul>
+                            <li>
+                                <p><strong>Address: </strong> 20 Cong Hoa, District 12, Ho Chi Minh city </p>
+                            </li>
+                            <li>
+                                <p>
+                                    <strong>Phone</strong>
+                                    : <a href=" tel: 0856996979"> 085699679 </a>
+                                </p>
+                            </li>
+                            <li>
+                                <p>
+                                    <strong>Email</strong>
+                                    :
+                                    <a href="">
+                                        <span class="__cf_email__"
+                                              data-cfemail="701508111d001c15301d11191c5e131f1d">Greenwich@fpt.edu.vn</span>
+                                    </a>
+                                </p>
+                            </li>
+                        </ul>
+                        <ul class="contact_icon d-flex">
+                            <li>
+                                <a href="https://www.facebook.com/GreenwichVietnam">
+                                    <i class="fa-brands fa-facebook-f"></i>
+                                </a>
+                            </li>
+                            
+                            
+                            <li>
+                                <a href="https://greenwich.edu.vn/en/english/">
+                                    <i class="fa-brands fa-google"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="contact_item col-sm-4 col-md-4 col-xl-2">
+                        <h2>Archives</h2>
+                        <ul>
+                            <li>
+                                <a href="#">December 2024</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="contact_item col-sm-4 col-md-4 col-xl-2">
+                        <h2>Categories</h2>
+                        <ul>
+                            <li><a href="~/Home">Home</a></li>
+                            <li><a href="~/Home/Hotels">Hotels</a></li>
+                            <li><a href="~/Home/Contact">Contact</a></li>
+                            <li><a href="~/Home/AboutUs">About Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="contact_item col-md-4 col-xl-2">
+                        <h2>Meta</h2>
+                        <ul>
+                            <li><a href="https://www.facebook.com/dangvietminhman">Mẫn Đặng</a></li>
+                            <li><a href="https://www.facebook.com/profile.php?id=100015993336291">Trung Tín</a></li>
+                            <li><a href="https://www.facebook.com/shnahts0501">Minh Thành</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="container">
-            <div class="contact_copy text-center">
-                <p class="d-inline">
-                    <i class="fa-regular fa-copyright"></i> 2024 All Rights Reserved by
-                </p>
-                <a href="#">Thanh Nguyen.</a>
-            </div>
-        </div>
-    </footer>
+        
+    </footer>  
+    
     <!-- Cart Modal -->
     <div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -154,11 +223,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <a class="btn btn-primary" asp-controller="Cart" asp-action="Index">Go to Cart</a>
                 </div>
             </div>
         </div>
     </div>
+
     <a href="~/Home"
        class="cd-top text-replace js-cd-top btn btn-lg btn-primary btn-lg-square back-to-top">
         <i class="fa-solid fa-arrow-up"></i>

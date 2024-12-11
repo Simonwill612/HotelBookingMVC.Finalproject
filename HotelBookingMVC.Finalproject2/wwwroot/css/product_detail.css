@@ -67,7 +67,7 @@ img {
 }
 
 .card {
-  background: #eee;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   padding: 3em;
   line-height: 1.5em;
 }
@@ -114,4 +114,47 @@ td {
 
 .btn-success {
   margin-top: 0px;
+}
+
+.dark input,
+.dark textarea {
+  color: white;
+}
+
+input,
+textarea {
+  outline: none;
+  width: 100%;
+  font-size: 16px;
+  color: black;
+  padding: 0px 16px;
+  border: 1px solid rgba(147, 107, 232, 0.05);
+  background: rgba(147, 107, 232, 0.05);
+  border-radius: 6px;
+  height: 55px;
+}
+
+textarea {
+  resize: none;
+  min-height: 140px;
+  padding: 12px 16px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #696969;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border: 1px solid #189a46;
+  box-shadow: none;
+}
+.dark p, .dark .uncheck{
+    color: white;
+}
+
+.modal-content{
+    color:black;
 }

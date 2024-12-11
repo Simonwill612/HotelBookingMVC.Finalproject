@@ -454,7 +454,7 @@ footer a:hover {
 }
 .back-to-top {
   position: fixed;
-  display: none;
+  display: none !important;
   right: 45px;
   bottom: 45px;
   z-index: 99;
@@ -465,14 +465,14 @@ footer a:hover {
 
 @media (min-width: 1000px) {
   header .dark_mode_1 {
-    display: none;
+    display: none !important;
   }
 }
 
 /* tablet  */
 @media (max-width: 992px) {
   header .dark_mode {
-    display: none;
+    display: none !important;
   }
   .navbar-expand-lg .navbar-toggler {
     margin-left: auto;
@@ -507,4 +507,12 @@ footer a:hover {
   body {
     margin-top: 20px;
   }
+}
+
+.dark #modal_cart {
+    background-color: #212020 !important;
+}
+
+.dark .modal-content {
+    background-color: #212020 !important;
 }

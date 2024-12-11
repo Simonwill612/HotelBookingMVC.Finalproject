@@ -1,51 +1,38 @@
 ﻿@model IEnumerable<HotelBookingMVC.Finalproject2.ViewModels.HotelViewModel>
 
-<form asp-action="Search" method="get" class="form-inline">
-    <div class="form-group">
-        <label for="state">State:</label>
-        <input type="text" name="state" class="form-control" placeholder="Enter state" />
-    </div>
-    <div class="form-group">
-        <label for="city">City:</label>
-        <input type="text" name="city" class="form-control" placeholder="Enter city" />
-    </div>
-    <button type="submit" class="btn btn-primary">Search</button>
-</form>
+@{
+    Layout = "~/Views/Shared/SearchLayout.cshtml";
+}
 
-<br />
 
-<!-- Existing table of hotels -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Address</th>
-            <th>City</th>
-            <th>State</th>
-            <th>Zip Code</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var hotel in Model)
-        {
-            <tr>
-                <td>@hotel.Name</td>
-                <td>@hotel.Address</td>
-                <td>@hotel.City</td>
-                <td>@hotel.State</td>
-                <td>@hotel.ZipCode</td>
-                <td>@hotel.PhoneNumber</td>
-                <td>@hotel.Email</td>
-                <td>@hotel.Description</td>
-                <td>
-                    <a asp-controller="Home" asp-action="Details" asp-route-id="@hotel.HotelID">Details</a> |
-                    <a asp-controller="Home" asp-action="Edit" asp-route-id="@hotel.HotelID">Edit</a> |
-                    <a asp-controller="Home" asp-action="Delete" asp-route-id="@hotel.HotelID">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="container mt-4">
+    <h2>Search Results</h2>
+
+    @if (!Model.Any())
+    {
+        <p>No hotels found for the specified city.</p>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var hotel in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <img src="@hotel.Media.FirstOrDefault()?.FilePath" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@hotel.Name</h5>
+                            <p class="card-text">
+                                <strong>Address:</strong> @hotel.Address<br />
+                                <strong>City:</strong> @hotel.City<br />
+                                <strong>Phone:</strong> @hotel.PhoneNumber<br />
+                                <strong>Email:</strong> @hotel.Email
+                            </p>
+                            <a href="@Url.Action("Details", "Home", new { id = hotel.HotelID })" class="btn btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

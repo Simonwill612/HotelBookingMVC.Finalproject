@@ -92,6 +92,19 @@ namespace HotelBookingMVC.Finalproject2.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
+                    // Gán vai trò Customer cho tài khoản mới
+                    var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
+                    if (!roleResult.Succeeded)
+                    {
+                        // Nếu không gán vai trò được, xóa người dùng và hiển thị lỗi
+                        await _userManager.DeleteAsync(user);
+                        foreach (var error in roleResult.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+                        return Page();
+                    }
+
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

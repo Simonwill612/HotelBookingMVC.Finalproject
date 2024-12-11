@@ -64,6 +64,12 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Add email service
 builder.Services.AddTransient<IEmailSender, EmailService>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddLogging(logging =>
+{
+    logging.AddConsole(); // Try removing any custom formatter first
+    logging.AddDebug();
+    logging.AddEventLog();
+});
 
 // Configure session services
 builder.Services.AddDistributedMemoryCache();
@@ -81,7 +87,7 @@ builder.Services.AddSingleton<IFileUploadService, FileUploadService>();
 async Task CreateRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    string[] roleNames = { "Admin", "Manager", "User" };
+    string[] roleNames = { "Admin", "Manager", "Customer" };
     foreach (var roleName in roleNames)
     {
         var roleExist = await roleManager.RoleExistsAsync(roleName);
@@ -112,6 +118,7 @@ else
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
@@ -127,7 +134,7 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Hotels}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
 

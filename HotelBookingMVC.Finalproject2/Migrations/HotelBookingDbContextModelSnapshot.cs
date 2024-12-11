@@ -70,6 +70,11 @@ namespace HotelBookingMVC.Finalproject2.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<bool>("SaveInfoForNextTime")
                         .HasColumnType("bit");
 

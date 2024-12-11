@@ -1,0 +1,54 @@
+﻿@model HotelBookingMVC.Finalproject2.ViewModels.BookingViewModel
+
+@{
+    ViewData["Title"] = "Delete Booking";
+    Layout = "~/Views/Shared/DeleteHotelsLayout.cshtml";
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-light rounded p-4">
+        <h2 class="text-center mb-4">Delete Booking</h2>
+
+        <div>
+            <h4>Are you sure you want to delete this booking?</h4>
+            <div>
+
+                <div>
+                    <strong>Room Number: </strong>
+                    <p class="form-control">@Model.RoomNumber</p>
+                </div>
+
+                <div>
+                    <strong>Booking Date: </strong>
+                    <p class="form-control">@Model.BookingDate.ToString("yyyy-MM-dd")</p>
+                </div>
+
+                <div>
+                    <strong>Check-In Date: </strong>
+                    <p class="form-control">@Model.CheckInDate.ToString("yyyy-MM-dd")</p>
+                </div>
+
+                <div>
+                    <strong>Check-Out Date: </strong>
+                    <p class="form-control">@Model.CheckOutDate.ToString("yyyy-MM-dd")</p>
+                </div>
+
+                <div>
+                    <strong>Total Price: </strong>
+                    <p class="form-control">@Model.TotalPrice.ToString("C")</p>
+                </div>
+
+                <div>
+                    <strong>Status: </strong>
+                    <p class="form-control">@Model.Status</p>
+                </div>
+            </div>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="BookingID" />
+                <button type="submit" class="btn btn-danger">Delete</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

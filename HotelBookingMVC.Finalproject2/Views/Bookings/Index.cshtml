@@ -1,0 +1,52 @@
+﻿@model IEnumerable<HotelBookingMVC.Finalproject2.ViewModels.BookingViewModel>
+
+@{
+    ViewData["Title"] = "Booking Manager";
+
+    Layout = "~/Views/Shared/BookingLayout.cshtml";
+}
+
+<h1 class="text-center">Booking Manager</h1>
+
+
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="bg-light text-center rounded p-4">
+                <div class="table-responsive">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Room Number</th>
+                                <th scope="col">Booking Date</th>
+                                <th scope="col">Check-In Date</th>
+                                <th scope="col">Check-Out Date</th>
+                                <th scope="col">Total Price</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.RoomNumber</td>
+                                    <td>@item.BookingDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@item.CheckInDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@item.CheckOutDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@item.TotalPrice.ToString("C")</td>
+                                    <td>@item.Status</td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@item.BookingID" class="btn btn-info">Details</a>
+                                        <a asp-action="Delete" asp-route-id="@item.BookingID" class="btn btn-danger">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

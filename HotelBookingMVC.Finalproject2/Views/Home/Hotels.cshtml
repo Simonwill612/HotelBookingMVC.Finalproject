@@ -1,0 +1,127 @@
+﻿@model IEnumerable<HotelBookingMVC.Finalproject2.ViewModels.HotelViewModel>
+
+@{
+    ViewData["Title"] = "All Hotels";
+    Layout = "~/Views/Shared/HomeHotelsLayout.cshtml";
+    var selectedStates = ViewContext.HttpContext.Request.Query["selectedStates"];
+}
+
+<section class="carousel_nav">
+    <div class="container">
+        <div class="carousel_content">
+            <h2>Hotel</h2>
+            <p><a href="@Url.Action("Index", "Home")">Home</a> » Hotel</p>
+        </div>
+    </div>
+</section>
+
+<div class="filter">
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+            <button class="navbar-toggler filter_toggle"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#filter"
+                    aria-controls="filter"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class=""><i class="fa-solid fa-filter"></i></span>
+            </button>
+            <div class="collapse navbar-collapse" id="filter">
+                <form method="get" action="@Url.Action("Hotels", "Home")" class="d-flex align-items-center gap-3 flex-wrap">
+                    <!-- Ghi chú -->
+                    <span class="me-3 fw-bold">Filter by State:</span>
+
+                    @foreach (var state in ViewBag.States as List<string>)
+                    {
+                        <div class="form-check me-3">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="selectedStates"
+                                   value="@state"
+                                   id="state_@state"
+                            @(selectedStates.Contains(state) ? "checked" : "") />
+                            <label class="form-check-label" for="state_@state">
+                                @state
+                            </label>
+                        </div>
+                    }
+                    <button type="submit" class="btn btn-success btn-sm">Apply Filter</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="container-fluid pt-4 px-4">
+    <div class=" rounded p-4">
+        <div class="row gy-4">
+            @foreach (var hotel in Model)
+            {
+                <div class="col-md-4">
+                    <div class="card shadow-sm rounded">
+                        <!-- Check and display first media -->
+                        @if (hotel.Media != null && hotel.Media.Any())
+                        {
+                            var firstMedia = hotel.Media.FirstOrDefault(m => m.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image);
+                            if (firstMedia != null)
+                            {
+                                <img class="w-100 rounded-top" src="~/media/hotel/img/@firstMedia.FileName" alt="@hotel.Name" />
+                            }
+                        }
+                        else
+                        {
+                            <!-- Show default image if no media -->
+                            <img class="w-100 rounded-top" src="~/media/hotel/img/default-hotel.jpg" alt="@hotel.Name" />
+                        }
+
+                        <div class="card-body">
+                            <h5 class="card-title">@hotel.Name</h5>
+                            <p class="card-text">
+                                <i class="fa-solid fa-location-dot"></i>
+                                @hotel.Address, @hotel.City, @hotel.State @hotel.ZipCode
+                            </p>
+                            <p class="card-text"><strong>Phone:</strong> @hotel.PhoneNumber</p>
+                            <p class="card-text"><strong>Email:</strong> @hotel.Email</p>
+
+                            <a asp-action="Details" asp-route-id="@hotel.HotelID" class="btn btn-primary btn-sm d-flex justify-content-center">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Pagination Section -->
+<div class="pagination d-flex justify-content-center mt-5">
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            @if (ViewBag.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Hotels", new { page = ViewBag.CurrentPage - 1, selectedStates = ViewContext.HttpContext.Request.Query["selectedStates"].ToArray() })" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            }
+
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Hotels", new { page = i, selectedStates = ViewContext.HttpContext.Request.Query["selectedStates"].ToArray() })">@i</a>
+                </li>
+            }
+
+            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Hotels", new { page = ViewBag.CurrentPage + 1, selectedStates = ViewContext.HttpContext.Request.Query["selectedStates"].ToArray() })" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+

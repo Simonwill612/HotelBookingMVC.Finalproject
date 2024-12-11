@@ -1,4 +1,7 @@
-﻿﻿@{
+﻿@using HotelBookingMVC.Finalproject2.ViewModels
+﻿
+
+@{
     Layout = "~/Views/Shared/DetailsLayout.cshtml";
     ViewData["Title"] = "Hotel Details";
 }
@@ -7,37 +10,68 @@
     <!-- Hotel Media -->
     @if (ViewBag.Hotel.Media != null)
     {
-        <div class="mb-4">
-            @foreach (var media in ViewBag.Hotel.Media)
-            {
-                if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image)
-                {
-                    <img class="w-100 rounded-top" src="~/media/hotel/img/@media.FileName" alt="@ViewBag.Hotel.Name" />
-                    break;
-                }
-                else if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Video)
-                {
-                    <video class="w-100 rounded-top" controls>
-                        <source src="~/media/hotel/video/@media.FileName" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    break;
-                }
-            }
+        <div class="card my-5">
+            <div class="container-fliud">
+                <div class="wrapper row">
+                    <div class="preview col-md-6">
+                        <div class="preview-pic tab-content">
+                            @{
+                                bool imageDisplayed = false;
+                            }
+                            @foreach (var media in ViewBag.Hotel.Media)
+                            {
+                                if (!imageDisplayed && media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image)
+                                {
+                                    <div class="tab-pane active">
+                                        <img class="w-100 rounded-top" src="~/media/hotel/img/@media.FileName" alt="@ViewBag.Hotel.Name" />
+                                    </div>
+                                    imageDisplayed = true; 
+                                }
+                            }
+                        </div>
+
+                        <ul class="preview-thumbnail nav nav-tabs">
+                            @foreach (var media in ViewBag.Hotel.Media)
+                            {
+                                if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image)
+                                {
+                                    <li>
+                                        <a href="#">
+                                            <img src="~/media/hotel/img/@media.FileName" alt="@ViewBag.Hotel.Name" />
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+
+                    <div class="details col-md-6">
+                        <h3 class="product-title">@ViewBag.Hotel.Name</h3>
+                        <div class="rating">
+                            <div class="stars">
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star checked"></span>
+                                <span class="fa fa-star uncheck"></span>
+                                <span class="fa fa-star uncheck"></span>
+                            </div>
+                        </div>
+                        <p><strong>Address:</strong> @ViewBag.Hotel.Address, @ViewBag.Hotel.City, @ViewBag.Hotel.State, @ViewBag.Hotel.ZipCode</p>
+                        <p><strong>Phone:</strong> @ViewBag.Hotel.PhoneNumber</p>
+                        <p><strong>Email:</strong> @ViewBag.Hotel.Email</p>
+
+                    </div>
+                </div>
+            </div>
         </div>
     }
 
-    <!-- Hotel Information -->
-    <h1>@ViewBag.Hotel.Name</h1>
-    <p><strong>Address:</strong> @ViewBag.Hotel.Address, @ViewBag.Hotel.City, @ViewBag.Hotel.State, @ViewBag.Hotel.ZipCode</p>
-    <p><strong>Phone:</strong> @ViewBag.Hotel.PhoneNumber</p>
-    <p><strong>Email:</strong> @ViewBag.Hotel.Email</p>
-    <p><strong>Description:</strong> @ViewBag.Hotel.Description</p>
 
     <!-- Room Details Table -->
     <h2 class="mt-5">Rooms</h2>
     <div class="table_content my-2">
         <table class="w-100">
+            <p><strong>Available Rooms Today:</strong> @ViewBag.AvailableRooms</p>
             <thead>
                 <tr>
                     <th>Room Number</th>
@@ -50,6 +84,7 @@
                 </tr>
             </thead>
             <tbody>
+
                 @foreach (var room in ViewBag.Rooms)
                 {
                     <tr>
@@ -66,12 +101,12 @@
                                     {
                                         if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image)
                                         {
-                                            <img src="@media.FilePath" alt="@media.FileName" style="max-width: 100px;" />
+                                            <img src="~/media/room/img/@media.FileName" alt="@media.FileName" style="max-width: 100px;" />
                                         }
                                         else if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Video)
                                         {
                                             <video controls style="max-width: 200px;">
-                                                <source src="@media.FilePath" type="video/mp4" />
+                                                <source src="~/media/room/img/@media.FileName" type="video/mp4" />
                                                 Your browser does not support the video tag.
                                             </video>
                                         }
@@ -81,19 +116,69 @@
                         </td>
                         <td>
                             <button type="button" class="btn btn-primary" onclick="openBookingModal('@room.RoomID', '@room.PricePerNight')">Add to Cart</button>
+
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+
+    <!-- Feedback Section -->
+    @await Html.PartialAsync("_CreateFeedbackPartial", new FeedbackViewModel
+{
+    HotelID = ViewBag.Hotel.HotelID
+})
+
+    @{
+        var feedbacks = ViewBag.Feedbacks as List<HotelBookingMVC.Finalproject2.ViewModels.FeedbackViewModel>;
+    }
+
+    <h2 class="mt-5">Customer Feedbacks</h2>
+    @if (feedbacks != null && feedbacks.Any())
+    {
+        <div class="list-group mt-3">
+            @foreach (var feedback in feedbacks)
+            {
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">@feedback.UserEmail</h5>
+                        <small>@feedback.DateCreated.ToString("yyyy-MM-dd HH:mm")</small>
+                    </div>
+                    <p class="mb-1">@feedback.Comment</p>
+                    <small>
+                        Rating:
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= feedback.StarRating)
+                            {
+                                <i class="fa fa-star text-warning"></i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-star text-secondary"></i>
+                            }
+                        }
+                    </small>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No feedbacks yet. Be the first to leave feedback!</p>
+    }
+
+
+
 </div>
+
 
 <!-- Booking Modal -->
 
 <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content" id="modal_cart">
             <div class="modal-header">
                 <h5 class="modal-title" id="bookingModalLabel">Book Room</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -123,26 +208,6 @@
     </div>
 </div>
 
-<!-- Cart Modal -->
-<div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cartModalLabel">Cart</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="cartModalBody">
-                <!-- Cart content will be loaded here via AJAX -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <a class="btn btn-primary" asp-controller="Cart" asp-action="Index">Go to Cart</a>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
     function openBookingModal(roomId, price) {

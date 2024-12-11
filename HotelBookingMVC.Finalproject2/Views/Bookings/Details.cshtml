@@ -1,0 +1,47 @@
+﻿@model HotelBookingMVC.Finalproject2.ViewModels.BookingViewModel
+
+@{
+    ViewData["Title"] = "Booking Details";
+    Layout = "~/Views/Shared/DetailsHotelsLayout.cshtml";
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-light rounded p-4">
+        <h2 class="text-center mb-4">Booking Information</h2>
+
+        <div class="border p-3 mb-3 rounded">
+            <h4 class="text-secondary">Room Number</h4>
+            <p class="form-control">@Model.RoomNumber</p>
+        </div>
+
+        <div class="border p-3 mb-3 rounded">
+            <h4 class="text-secondary">Booking Date</h4>
+            <p class="form-control">@Model.BookingDate.ToString("yyyy-MM-dd")</p>
+        </div>
+
+        <div class="border p-3 mb-3 rounded">
+            <h4 class="text-secondary">Check-In Date</h4>
+            <p class="form-control">@Model.CheckInDate.ToString("yyyy-MM-dd")</p>
+        </div>
+
+        <div class="border p-3 mb-3 rounded">
+            <h4 class="text-secondary">Check-Out Date</h4>
+            <p class="form-control">@Model.CheckOutDate.ToString("yyyy-MM-dd")</p>
+        </div>
+
+        <div class="border p-3 mb-3 rounded">
+            <h4 class="text-secondary">Total Price</h4>
+            <p class="form-control">@Model.TotalPrice.ToString("C")</p>
+        </div>
+
+        <div class="border p-3 mb-3 rounded">
+            <h4 class="text-secondary">Status</h4>
+            <p class="form-control">@Model.Status</p>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.BookingID" class="btn btn-primary">Edit</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</div>

@@ -1,90 +1,42 @@
-﻿@model HotelBookingMVC.Finalproject2.ViewModels.UserViewModel;
+﻿@model HotelBookingMVC.Finalproject2.ViewModels.UserViewModel
 
-    <style >
-    .user-details {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border: 1px solid #ccc;
-        padding: 20px;
-        border-radius: 10px;
-        background-color: #fff;
-        width: 300px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ */
-    }
+@{
+    ViewData["Title"] = "User Details";
+    Layout = "~/Views/Shared/DetailsDashboardLayout.cshtml"; 
+}
 
-        .user-details h2 {
-            margin-top: 0;
-            color: #333;
-        }
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-light rounded p-4">
+        <h2 class="text-center mb-4">User Information</h2>
 
-        .user-details div {
-            margin-bottom: 15px;
-        }
+        <div class="border p-3 mb-3 rounded">
+            <h4 class="text-secondary">ID</h4>
+            <p class="form-control">@Model.Id</p>
+        </div>
 
-        .user-details h4 {
-            margin: 5px 0;
-            color: #666;
-        }
+        <div class="border p-3 mb-3 rounded">
+            <h4 class="text-secondary">Email</h4>
+            <p class="form-control">@Model.Email</p>
+        </div>
 
-        .user-details p {
-            margin: 0;
-        }
+        <div class="border p-3 mb-3 rounded">
+            <h4 class="text-secondary">Email Confirmed</h4>
+            <p class="form-control">@Model.EmailConfirmed</p>
+        </div>
 
-        .user-details ul {
-            padding-left: 20px;
-            margin: 0;
-        }
+        <div class="border p-3 mb-3 rounded">
+            <h4 class="text-secondary">Roles</h4>
+            <ul class="form-control" style="list-style-type: none; padding-left: 0; margin: 0;">
+                @foreach (var role in Model.Roles)
+                {
+                    <li>@role</li>
+                }
+            </ul>
+        </div>
 
-        .user-details li {
-            list-style-type: none;
-            margin-bottom: 5px;
-        }
-
-        .user-details a {
-            text-decoration: none;
-            color: #fff;
-        }
-
-            .user-details a:hover {
-                text-decoration: underline;
-            }
-</style>
-
-
-<div class="user-details">
-    <h2>User Details</h2>
-    <hr />
-    <div>
-        <h4>Id:</h4>
-        <p>@Model.Id</p>
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
     </div>
-
-    <div>
-        <h4>Email:</h4>
-        <p>@Model.Email</p>
-    </div>
-
-    <div>
-        <h4>Email Confirmed:</h4>
-        <p>@Model.EmailConfirmed</p>
-    </div>
-
-    <div>
-        <h4>Roles:</h4>
-        <ul>
-            @foreach (var role in Model.Roles)
-            {
-                <li>@role</li>
-            }
-        </ul>
-    </div>
-
-    <span>
-        <a class="btn btn-primary" href="@Url.Action("Edit", "AdminDashboard", new { id = Model.Id })">
-        Edit
-    </a>
-    </span>
 </div>
-

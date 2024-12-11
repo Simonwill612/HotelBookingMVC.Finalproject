@@ -296,3 +296,6 @@ form#subscribe button {
     margin-top: 16px;
   }
 }
+.dark .text-dark {
+    color:white !important;
+}

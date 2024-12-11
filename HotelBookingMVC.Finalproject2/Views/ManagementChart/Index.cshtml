@@ -1,0 +1,161 @@
+﻿@using HotelBookingMVC.Finalproject2.ViewModels
+@model ManagementChartViewModel
+
+@{
+
+    Layout = "~/Views/Shared/HotelsLayout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .chart-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Management Chart</h1>
+
+    <!-- Các nút để chọn biểu đồ -->
+    <button id="showHotelChart">Show Hotel Chart</button>
+    <button id="showCustomerChart">Show Customer Chart</button>
+    <button id="showBookingChart">Show Booking Chart</button>
+
+    <!-- Biểu đồ Hotels -->
+    <div id="hotelChartContainer" class="chart-container">
+        <h2>Hotels</h2>
+        <canvas id="hotelChart" width="400" height="200"></canvas>
+    </div>
+
+    <!-- Biểu đồ Customers -->
+    <div id="customerChartContainer" class="chart-container">
+        <h2>Customers</h2>
+        <canvas id="customerChart" width="400" height="200"></canvas>
+    </div>
+
+    <!-- Biểu đồ Bookings -->
+    <div id="bookingChartContainer" class="chart-container">
+        <h2>Bookings</h2>
+        <canvas id="bookingChart" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Sử dụng AJAX để lấy dữ liệu từ server
+            $.ajax({
+                url: '/ManagementChart/GetChartData', // Địa chỉ API bạn đã tạo
+                method: 'GET',
+                success: function(data) {
+                    // Dữ liệu trả về từ server
+
+                    // Biểu đồ Hotels
+                    const hotelConfig = {
+                        type: 'bar', // Biểu đồ cột
+                        data: data.hotels,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Hotels Count'
+                                }
+                            }
+                        }
+                    };
+
+                    // Biểu đồ Customers
+                    const customerConfig = {
+                        type: 'pie', // Biểu đồ tròn
+                        data: data.customers,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Customers Count'
+                                }
+                            }
+                        }
+                    };
+
+                    // Biểu đồ Bookings
+                    const bookingConfig = {
+                        type: 'line', // Biểu đồ đường
+                        data: data.bookings,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Bookings Count'
+                                }
+                            }
+                        }
+                    };
+
+                    // Render biểu đồ Hotels
+                    new Chart(
+                        document.getElementById('hotelChart'),
+                        hotelConfig
+                    );
+
+                    // Render biểu đồ Customers
+                    new Chart(
+                        document.getElementById('customerChart'),
+                        customerConfig
+                    );
+
+                    // Render biểu đồ Bookings
+                    new Chart(
+                        document.getElementById('bookingChart'),
+                        bookingConfig
+                    );
+
+                    // Mặc định hiển thị biểu đồ đầu tiên (Hotels)
+                    $('#hotelChartContainer').show();
+
+                    // Xử lý sự kiện khi nhấn vào nút Show Hotel Chart
+                    $('#showHotelChart').click(function() {
+                        $('#hotelChartContainer').show();
+                        $('#customerChartContainer').hide();
+                        $('#bookingChartContainer').hide();
+                    });
+
+                    // Xử lý sự kiện khi nhấn vào nút Show Customer Chart
+                    $('#showCustomerChart').click(function() {
+                        $('#hotelChartContainer').hide();
+                        $('#customerChartContainer').show();
+                        $('#bookingChartContainer').hide();
+                    });
+
+                    // Xử lý sự kiện khi nhấn vào nút Show Booking Chart
+                    $('#showBookingChart').click(function() {
+                        $('#hotelChartContainer').hide();
+                        $('#customerChartContainer').hide();
+                        $('#bookingChartContainer').show();
+                    });
+                },
+                error: function(err) {
+                    console.error('Error fetching chart data: ', err);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

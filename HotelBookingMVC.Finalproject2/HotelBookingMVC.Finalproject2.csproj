@@ -22,6 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Content Include="wwwroot\css\about.css" />
 		<Content Include="wwwroot\css\bootstrap.min.css" />
 		<Content Include="wwwroot\css\contact.css" />
 		<Content Include="wwwroot\css\dashboard.css" />
@@ -31,6 +32,7 @@
 		<Content Include="wwwroot\css\product_detail.css" />
 		<Content Include="wwwroot\css\site.css" />
 		<Content Include="wwwroot\css\style.css" />
+		<Content Include="wwwroot\img\banner4.jpg" />
 		<Content Include="wwwroot\img\bg-img\bg-1.jpg" />
 		<Content Include="wwwroot\img\bg-img\bg-2.jpg" />
 		<Content Include="wwwroot\img\bg-img\bg-3.jpg" />
@@ -44,8 +46,11 @@
 		<Content Include="wwwroot\img\bg_3.jpg" />
 		<Content Include="wwwroot\img\core-img\favicon.ico" />
 		<Content Include="wwwroot\img\core-img\logo.png" />
+		<Content Include="wwwroot\img\Minh_Man.jpg" />
+		<Content Include="wwwroot\img\minh_thanh.jpg" />
 		<Content Include="wwwroot\img\travel-ibk7fgrvtvhs7qzg.jpg" />
 		<Content Include="wwwroot\favicon.ico" />
+		<Content Include="wwwroot\img\Trung_Tin.jpg" />
 		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css" />
 		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css" />
 		<Content Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css" />

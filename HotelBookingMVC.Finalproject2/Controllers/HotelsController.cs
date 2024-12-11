@@ -13,10 +13,11 @@ using HotelBookingMVC.Finalproject2.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using HotelBookingMVC.Finalproject2.Models;
+using System.Security.Claims;
 
 namespace HotelBookingMVC.Finalproject2.Controllers
 {
-    //[Authorize]
+    [Authorize(Roles = "Manager")]
     public class HotelsController : Controller
     {
         private readonly HotelBookingDbContext _context;
@@ -36,11 +37,17 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         // GET: Hotels
         public async Task<IActionResult> Index()
         {
-            //var hotels = await _context.Hotels.Include(h => h.Media).ToListAsync();
+            // Lấy UserID từ thông tin đăng nhập (claims)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Lọc khách sạn chỉ của người dùng hiện tại
             var hotels = await _context.Hotels
+                .Where(h => h.UserID == userId) // Lọc theo UserID
                 .Include(h => h.HotelMediaDetails)
                     .ThenInclude(h => h.Media)
                 .ToListAsync();
+
+            // Chuyển đổi dữ liệu từ entities sang ViewModels
             var hotelViewModels = hotels.Select(h => new HotelViewModel
             {
                 HotelID = h.HotelID,
@@ -118,13 +125,6 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             {
                 var userId = _userManager.GetUserId(User); // Get the current user's ID
 
-                var existingHotel = await _context.Hotels.FirstOrDefaultAsync(h => h.UserID == userId);
-                if (existingHotel != null)
-                {
-                    ModelState.AddModelError(string.Empty, "You have already created a hotel.");
-                    return View(hotelViewModel);
-                }
-
                 var hotel = new Hotel
                 {
                     HotelID = Guid.NewGuid(),
@@ -189,65 +189,86 @@ namespace HotelBookingMVC.Finalproject2.Controllers
 
             return View(hotelViewModel);
         }
-
         // POST: Hotels/Edit/{id}
         [HttpPost]
         [RequestSizeLimit(100_000_000)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid? id, HotelViewModel hotelViewModel)
         {
+            // Kiểm tra ID có khớp không
             if (id != hotelViewModel.HotelID)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            // Kiểm tra tính hợp lệ của dữ liệu
+            if (!ModelState.IsValid)
             {
-                try
+                // Nếu dữ liệu không hợp lệ, trả lại view với thông báo lỗi
+                return View(hotelViewModel);
+            }
+
+            // Tìm khách sạn trong cơ sở dữ liệu
+            var hotel = await _context.Hotels
+                .Include(h => h.HotelMediaDetails)
+                .FirstOrDefaultAsync(h => h.HotelID == hotelViewModel.HotelID);
+
+            if (hotel == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                // Cập nhật thông tin khách sạn
+                hotel.Name = hotelViewModel.Name;
+                hotel.Address = hotelViewModel.Address;
+                hotel.City = hotelViewModel.City;
+                hotel.State = hotelViewModel.State;
+                hotel.ZipCode = hotelViewModel.ZipCode;
+                hotel.PhoneNumber = hotelViewModel.PhoneNumber;
+                hotel.Email = hotelViewModel.Email;
+                hotel.Description = hotelViewModel.Description;
+                hotel.UpdatedAt = DateTime.Now;
+
+                // Thêm tệp hình ảnh mới nếu có
+                if (hotelViewModel.ImageFiles?.Any() == true)
                 {
-                    //var hotel = await _context.Hotels.Include(h => h.Media).FirstOrDefaultAsync(h => h.HotelID == hotelViewModel.HotelID);
-                    var hotel = await _context.Hotels
-                        .Include(h => h.HotelMediaDetails)
-                        .Where(h => h.HotelID == hotelViewModel.HotelID)
-                        .FirstOrDefaultAsync();
-
-                    if (hotel == null)
-                    {
-                        return NotFound();
-                    }
-
-                    hotel.Name = hotelViewModel.Name;
-                    hotel.Address = hotelViewModel.Address;
-                    hotel.City = hotelViewModel.City;
-                    hotel.State = hotelViewModel.State;
-                    hotel.ZipCode = hotelViewModel.ZipCode;
-                    hotel.PhoneNumber = hotelViewModel.PhoneNumber;
-                    hotel.Email = hotelViewModel.Email;
-                    hotel.Description = hotelViewModel.Description;
-                    hotel.UpdatedAt = DateTime.Now;
-
-                    // Add new media
                     await SaveMediaFiles(hotel.HotelID, hotelViewModel.ImageFiles, MediaType.Image, null);
-                    await SaveMediaFiles(hotel.HotelID, hotelViewModel.VideoFiles, MediaType.Video, null);
+                }
 
-                    _context.Update(hotel);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
+                // Thêm tệp video mới nếu có
+                if (hotelViewModel.VideoFiles?.Any() == true)
                 {
-                    if (!HotelExists(hotelViewModel.HotelID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    await SaveMediaFiles(hotel.HotelID, hotelViewModel.VideoFiles, MediaType.Video, null);
                 }
+
+                // Lưu cập nhật vào cơ sở dữ liệu
+                _context.Update(hotel);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!HotelExists(hotelViewModel.HotelID))
+                {
+                    return NotFound();
+                }
+
+                throw; // Để lỗi tự động được xử lý bởi hệ thống
+            }
+            catch (Exception ex)
+            {
+                // Thêm lỗi vào ModelState để hiển thị thông báo trên giao diện
+                ModelState.AddModelError("", "An error occurred while updating the hotel. Please try again.");
+            }
+
+            // Trả lại view với dữ liệu để sửa lỗi
             return View(hotelViewModel);
         }
+
+
 
         // GET: Hotels/Delete/{id}
         public async Task<IActionResult> Delete(Guid? id)

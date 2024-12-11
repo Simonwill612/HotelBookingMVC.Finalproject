@@ -1,4 +1,5 @@
 ﻿using HotelBookingMVC.Finalproject2.Data.Entities;
+using System.Linq;
 
 namespace HotelBookingMVC.Finalproject2.ViewModels
 {

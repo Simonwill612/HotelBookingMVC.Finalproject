@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit Room";
-    Layout = "~/Views/Shared/EditRoomsLayout.cshtml";
+    Layout = "~/Views/Shared/HotelsLayout.cshtml";
 }
 
 <div class="container-fluid pt-4 px-4">
@@ -17,7 +17,7 @@
                     <input type="hidden" asp-for="RoomID" />
 
                     <div class="form-group mb-3">
-                        <label asp-for="RoomNumber" class="control-label"></label>
+                        <label asp-for="RoomNumber" class="control-label">Room Number</label>
                         <input asp-for="RoomNumber" class="form-control" />
                         <span asp-validation-for="RoomNumber" class="text-danger"></span>
                     </div>
@@ -34,7 +34,7 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label asp-for="PricePerNight" class="control-label"></label>
+                        <label asp-for="PricePerNight" class="control-label">Price Per Night</label>
                         <input asp-for="PricePerNight" class="form-control" />
                         <span asp-validation-for="PricePerNight" class="text-danger"></span>
                     </div>
@@ -49,6 +49,29 @@
                         <label asp-for="Availability" class="control-label"></label>
                         <input asp-for="Availability" type="checkbox" />
                         <span asp-validation-for="Availability" class="text-danger"></span>
+                    </div>
+
+                    <h3>Current Media</h3>
+                    <div class="form-group mb-3">
+                        <div>
+                            @foreach (var media in Model.RoomMediaDetails)
+                            {
+                                <div class="media-item mb-2">
+                                    @if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image)
+                                    {
+                                        <img src="~/media/room/img/@media.FileName" alt="Image" style="width: 100px; height: auto;" />
+                                    }
+                                    else if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Video)
+                                    {
+                                        <video width="100" controls class="img-thumbnail">
+                                            <source src="~/media/room/video/@media.FileName" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    }
+                                    <a asp-action="DeleteMedia" asp-route-mediaId="@media.MediaID" class="btn btn-danger btn-sm">Delete</a>
+                                </div>
+                            }
+                        </div>
                     </div>
 
                     <div class="form-group mb-3">

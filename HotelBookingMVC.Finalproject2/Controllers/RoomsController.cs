@@ -11,6 +11,8 @@ using HotelBookingMVC.Finalproject2.Data;
 using HotelBookingMVC.Finalproject2.Data.Entities;
 using HotelBookingMVC.Finalproject2.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using HotelBookingMVC.Finalproject2.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace HotelBookingMVC.Finalproject2.Controllers
 {
@@ -21,17 +23,46 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         private readonly HotelBookingDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<HotelsController> _logger;
+        private readonly UserManager<HotelUser> _userManager;
 
 
-        public RoomsController(HotelBookingDbContext context, IWebHostEnvironment webHostEnvironment, ILogger<HotelsController> logger)
+        public RoomsController(HotelBookingDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<HotelUser> userManager, ILogger<HotelsController> logger)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _logger = logger;
+            _userManager = userManager;
+
         }
 
         public async Task<IActionResult> Index(Guid hotelId)
         {
+            // Lấy thông tin người dùng hiện tại và gán hình ảnh vào ViewData
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định nếu không có
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+            else
+            {
+                ViewData["UserProfilePicture"] = "/uploads/profile_pictures/default.png";
+            }
+
+            // Lấy danh sách phòng và kiểm tra tính khả dụng
+            var currentDate = DateTime.Now;  // Lấy ngày hiện tại để kiểm tra tính khả dụng
+
+            // Lấy danh sách phòng đã được đặt trong ngày hiện tại
+            var bookings = await _context.Bookings
+                .Where(b => b.Room.HotelID == hotelId &&
+                            (b.CheckInDate <= currentDate && b.CheckOutDate >= currentDate))
+                .Select(b => b.RoomID)
+                .ToListAsync();
+
+            // Lấy danh sách phòng và kèm thông tin media
             var roomViewModels = await _context.Rooms
                 .Where(r => r.HotelID == hotelId)
                 .Include(r => r.RoomMediaDetails)
@@ -44,7 +75,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                     Type = r.Type,
                     PricePerNight = r.PricePerNight,
                     Description = r.Description,
-                    Availability = r.Availability,
+                    Availability = !bookings.Contains(r.RoomID),  // Kiểm tra phòng có khả dụng không
                     DateCreatedAt = r.DateCreatedAt,
                     DateUpdatedAt = r.DateUpdatedAt,
                     MediaViewModels = r.RoomMediaDetails
@@ -59,6 +90,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 })
                 .ToListAsync();
 
+            // Truyền tên khách sạn và ID khách sạn vào ViewBag
             ViewBag.HotelName = await _context.Hotels
                 .Where(h => h.HotelID == hotelId)
                 .Select(h => h.Name)
@@ -68,59 +100,40 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             return View(roomViewModels);
         }
 
-        public async Task<IActionResult> Details(Guid? id)
+
+
+
+        public async Task<IActionResult> Create(Guid hotelId)
         {
-            if (id == null)
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
             {
-                return NotFound();
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" 
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+            else
+            {
+                ViewData["UserProfilePicture"] = "/uploads/profile_pictures/default.png";
             }
 
-            var room = await _context.Rooms
-                .Include(r => r.RoomMediaDetails)
-                .ThenInclude(rmd => rmd.Media)
-                .FirstOrDefaultAsync(r => r.RoomID == id);
-
-            if (room == null)
-            {
-                return NotFound();
-            }
-
-            var roomViewModel = new RoomViewModel
-            {
-                RoomID = room.RoomID,
-                HotelID = room.HotelID,
-                RoomNumber = room.RoomNumber,
-                Type = room.Type,
-                PricePerNight = room.PricePerNight,
-                Description = room.Description,
-                Availability = room.Availability,
-                DateCreatedAt = room.DateCreatedAt,
-                DateUpdatedAt = room.DateUpdatedAt,
-                MediaViewModels = room.RoomMediaDetails.Select(rmd => new MediaViewModel
-                {
-                    MediaID = rmd.MediaId,
-                    FileName = rmd.Media.FileName,
-                    FilePath = rmd.Media.FilePath,
-                    MediaType = rmd.Media.MediaType
-                }).ToList()
-            };
-
-            return View(roomViewModel);
-        }
-
-        public IActionResult Create(Guid hotelId)
-        {
+            // Tạo view model với HotelID được truyền vào
             var viewModel = new RoomViewModel
             {
                 HotelID = hotelId
             };
 
+            // Truyền thêm HotelID vào ViewBag (nếu cần)
             ViewBag.HotelID = hotelId;
 
             return View(viewModel);
         }
 
+
         [HttpPost]
+        [RequestSizeLimit(100_000_000)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(RoomViewModel roomViewModel)
         {
@@ -162,7 +175,19 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định nếu không có
+                    : user.ProfilePictureFileName;
 
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+            else
+            {
+                ViewData["UserProfilePicture"] = "/uploads/profile_pictures/default.png";
+            }
             var room = await _context.Rooms
                 .Include(r => r.RoomMediaDetails)
                 .ThenInclude(rmd => rmd.Media)
@@ -184,19 +209,18 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 Availability = room.Availability,
                 DateCreatedAt = room.DateCreatedAt,
                 DateUpdatedAt = room.DateUpdatedAt,
-                MediaViewModels = room.RoomMediaDetails.Select(rmd => new MediaViewModel
-                {
-                    MediaID = rmd.MediaId,
-                    FileName = rmd.Media.FileName,
-                    FilePath = rmd.Media.FilePath,
-                    MediaType = rmd.Media.MediaType
-                }).ToList()
+                RoomMediaDetails = await _context.RoomMediaDetails
+                    .Where(m => m.RoomId == id)
+                    .Include(m => m.Media)
+                    .Select(m => new MediaViewModel(m.Media))
+                    .ToListAsync()
             };
 
             return View(roomViewModel);
         }
 
         [HttpPost]
+        [RequestSizeLimit(100_000_000)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, RoomViewModel roomViewModel)
         {
@@ -248,18 +272,29 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index), new { hotelId = roomViewModel.HotelID });
+                return RedirectToAction(nameof(Edit), new { hotelId = roomViewModel.HotelID });
             }
             return View(roomViewModel);
         }
-
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định nếu không có
+                    : user.ProfilePictureFileName;
 
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+            else
+            {
+                ViewData["UserProfilePicture"] = "/uploads/profile_pictures/default.png";
+            }
             var room = await _context.Rooms
                 .Include(r => r.RoomMediaDetails)
                 .ThenInclude(rmd => rmd.Media)
@@ -283,6 +318,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
 
             if (room != null)
             {
+                // Delete associated media and RoomMediaDetails
                 foreach (var roomMediaDetail in room.RoomMediaDetails)
                 {
                     var media = await _context.Media.FindAsync(roomMediaDetail.MediaId);
@@ -292,13 +328,80 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                     }
                     _context.RoomMediaDetails.Remove(roomMediaDetail);
                 }
+
                 _context.Rooms.Remove(room);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
+            // Redirect to the Index page
             return RedirectToAction(nameof(Index), new { hotelId = room.HotelID });
         }
 
+        // GET: Hotels/DeleteMedia/{mediaId}
+        public async Task<IActionResult> DeleteMedia(Guid? mediaId)
+        {
+            if (mediaId == null)
+            {
+                return NotFound();
+            }
+
+            // Fetch the media item along with its associated hotel
+            var media = await _context.Media
+                .Include(m => m.RoomMediaDetails) // Include the hotel media details
+                .ThenInclude(hmd => hmd.Room) // Include the hotel information if needed
+                .FirstOrDefaultAsync(m => m.MediaID == mediaId);
+
+            if (media == null)
+            {
+                return NotFound();
+            }
+
+            // Create a view model to pass to the view
+            var mediaViewModel = new MediaViewModel
+            {
+                MediaID = media.MediaID,
+                FileName = media.FileName,
+                FilePath = media.FilePath,
+                MediaType = media.MediaType,
+                // You can add more properties if needed
+            };
+
+            return View(mediaViewModel);
+        }
+
+        // POST: Hotels/DeleteMedia/{mediaId}
+        [HttpPost, ActionName("DeleteMedia")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMediaConfirmed(Guid mediaId)
+        {
+            // Find the media item by its ID
+            var media = await _context.Media.FindAsync(mediaId);
+            if (media == null)
+            {
+                return NotFound();
+            }
+
+            // Delete the file from the file system if it exists
+            if (System.IO.File.Exists(media.FilePath))
+            {
+                System.IO.File.Delete(media.FilePath);
+            }
+
+            // Remove the media entity from the database
+            _context.Media.Remove(media);
+
+            // Remove associated HotelMediaDetails if necessary
+            var roomMediaDetails = await _context.RoomMediaDetails
+                .Where(hmd => hmd.MediaId == mediaId)
+                .ToListAsync();
+
+            _context.RoomMediaDetails.RemoveRange(roomMediaDetails);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Edit), new { id = roomMediaDetails.FirstOrDefault()?.RoomId });
+        }
         private bool RoomExists(Guid id)
         {
             return _context.Rooms.Any(e => e.RoomID == id);
@@ -373,7 +476,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             }
             else
             {
-                _logger.LogWarning("No files to save for hotel ID: {RoomID}", roomId);
+                _logger.LogWarning("No files to save for room ID: {RoomID}", roomId);
             }
         }
 

@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit Hotel";
-    Layout = "~/Views/Shared/EditHotelsLayout.cshtml";
+    Layout = "~/Views/Shared/HotelsLayout.cshtml";
 
 }
 <div asp-validation-summary="All" class="text-danger"></div>
@@ -41,13 +41,13 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label asp-for="ZipCode" class="control-label"></label>
+                        <label asp-for="ZipCode" class="control-label">Zip Code</label>
                         <input asp-for="ZipCode" class="form-control" />
                         <span asp-validation-for="ZipCode" class="text-danger"></span>
                     </div>
 
                     <div class="form-group mb-3">
-                        <label asp-for="PhoneNumber" class="control-label"></label>
+                        <label asp-for="PhoneNumber" class="control-label">Phone Number</label>
                         <input asp-for="PhoneNumber" class="form-control" />
                         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                     </div>
@@ -107,7 +107,7 @@
     </div>
 </div>
 
- 
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

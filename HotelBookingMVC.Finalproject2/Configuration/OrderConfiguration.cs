@@ -22,7 +22,7 @@ namespace HotelBookingMVC.Finalproject2.Configuration
             builder.Property(o => o.SubTotal)
                    .HasColumnType("decimal(18,2)");
 
-            builder.Property(o => o.Phone)
+            builder.Property(o => o.PhoneNumber)
                    .HasMaxLength(15);
 
             builder.Property(o => o.Address)

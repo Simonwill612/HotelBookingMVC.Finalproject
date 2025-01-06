@@ -22,7 +22,7 @@ namespace HotelBookingMVC.Finalproject2.Data.Entities
 
         public string? Note { get; set; }
 
-        public string Phone { get; set; }
+        public string PhoneNumber { get; set; }
 
         public string Address { get; set; }
 

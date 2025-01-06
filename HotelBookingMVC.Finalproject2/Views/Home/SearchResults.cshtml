@@ -4,35 +4,102 @@
     Layout = "~/Views/Shared/SearchLayout.cshtml";
 }
 
-
 <div class="container mt-4">
     <h2>Search Results</h2>
 
+    <!-- Filter by State -->
+    <div class="filter">
+        <nav class="navbar bg-body-tertiary">
+            <div class="container-fluid">
+                <button class="navbar-toggler filter_toggle"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#filter"
+                        aria-controls="filter"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class=""><i class="fa-solid fa-filter"></i></span>
+                </button>
+                <div class="collapse navbar-collapse" id="filter">
+                    <form method="get" action="/Home/Search" class="d-flex align-items-center gap-3 flex-wrap">
+                        <span class="me-3 fw-bold">Filter by State:</span>
+
+                        @if (ViewBag.States != null)
+                        {
+                            @foreach (var state in ViewBag.States as List<string>)
+                            {
+                                <div class="form-check me-3">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="selectedStates"
+                                           value="@state"
+                                           id="state_@state"
+                                    @(ViewBag.SelectedStates != null && ((string[])ViewBag.SelectedStates).Contains(state) ? "checked" : "") />
+                                    <label class="form-check-label" for="state_@state">
+                                        @state
+                                    </label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>No states available for filtering.</p>
+                        }
+
+                        <!-- Hidden input giữ giá trị city -->
+                        <input type="hidden" name="city" value="@ViewBag.City" />
+                        <button type="submit" class="btn btn-success btn-sm">Apply Filter</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Display Search Results -->
     @if (!Model.Any())
     {
         <p>No hotels found for the specified city.</p>
     }
     else
     {
-        <div class="row">
-            @foreach (var hotel in Model)
-            {
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm">
-                        <img src="@hotel.Media.FirstOrDefault()?.FilePath" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <h5 class="card-title">@hotel.Name</h5>
-                            <p class="card-text">
-                                <strong>Address:</strong> @hotel.Address<br />
-                                <strong>City:</strong> @hotel.City<br />
-                                <strong>Phone:</strong> @hotel.PhoneNumber<br />
-                                <strong>Email:</strong> @hotel.Email
-                            </p>
-                            <a href="@Url.Action("Details", "Home", new { id = hotel.HotelID })" class="btn btn-primary">View Details</a>
+        <div class="container-fluid pt-4 px-4">
+            <div class=" rounded p-4">
+                <div class="row gy-4">
+                    @foreach (var hotel in Model)
+                    {
+                        <div class="col-md-4">
+                            <div class="card shadow-sm rounded card_style">
+                                <!-- Check and display first media -->
+                                @if (hotel.Media != null && hotel.Media.Any())
+                                {
+                                    var firstMedia = hotel.Media.FirstOrDefault(m => m.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image);
+                                    if (firstMedia != null)
+                                    {
+                                        <img class="w-100 rounded-top" src="~/media/hotel/img/@firstMedia.FileName" alt="@hotel.Name" />
+                                    }
+                                }
+                                else
+                                {
+                                    <!-- Show default image if no media -->
+                                    <img class="w-100 rounded-top" src="~/media/hotel/img/default-hotel.jpg" alt="@hotel.Name" />
+                                }
+
+                                <div class="card-body">
+                                    <h5 class="card-title">@hotel.Name</h5>
+                                    <p class="card-text">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                        @hotel.Address, @hotel.City, @hotel.State @hotel.ZipCode
+                                    </p>
+                                    <p class="card-text"><strong>Phone:</strong> @hotel.PhoneNumber</p>
+                                    <p class="card-text"><strong>Email:</strong> @hotel.Email</p>
+
+                                    <a asp-action="Details" asp-route-id="@hotel.HotelID" class="btn btn-primary btn-sm d-flex justify-content-center">View Details</a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
-            }
+            </div>
         </div>
     }
 </div>

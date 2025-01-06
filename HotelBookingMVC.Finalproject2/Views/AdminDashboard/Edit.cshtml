@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit User";
-    Layout = "~/Views/Shared/EditDashboardLayout.cshtml"; 
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
 }
 
 <div class="container-fluid pt-4 px-4">
@@ -24,7 +24,7 @@
 
                     <!-- Email Confirmed -->
                     <div class="form-group mb-3">
-                        <label asp-for="EmailConfirmed" class="control-label"></label>
+                        <label asp-for="EmailConfirmed" class="control-label">Email Confirmed</label>
                         <div class="form-check">
                             <input asp-for="EmailConfirmed" class="form-check-input" type="checkbox" />
                             <label class="form-check-label" for="EmailConfirmed">

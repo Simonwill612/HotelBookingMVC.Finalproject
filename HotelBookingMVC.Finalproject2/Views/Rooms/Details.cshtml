@@ -42,12 +42,12 @@
                 {
                     if (media.MediaType == MediaType.Image)
                     {
-                        <img src="@media.FilePath" alt="Image" style="width: 100px; height: auto; margin-right: 10px;" />
+                        <img src="~/media/room/@media.FileName" alt="Image" style="width: 100px; height: auto; margin-right: 10px;" />
                     }
                     else if (media.MediaType == MediaType.Video)
                     {
                         <video width="100" controls style="margin-right: 10px;">
-                            <source src="@media.FilePath" type="video/mp4">
+                            <source src="~/media/room/@media.FileName" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     }
@@ -57,7 +57,7 @@
 
         <div class="d-flex justify-content-between mt-4">
             <a asp-action="Edit" asp-route-id="@Model.RoomID" class="btn btn-primary">Edit</a>
-            <a asp-action="Index" asp-route-hotelId="@Model.HotelID" class="btn btn-secondary">Back to List</a>
+            <a asp-action="Edit" asp-route-roomId="@Model.RoomID" class="btn btn-secondary">Back to List</a>
         </div>
     </div>
 </div>

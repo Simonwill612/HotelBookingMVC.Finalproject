@@ -47,17 +47,19 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 {
                     CartItemID = i.CartItemID,
                     RoomID = i.RoomID,
-                    RoomNumber = _context.Rooms.FirstOrDefault(r => r.RoomID == i.RoomID)?.RoomNumber ?? "Unknown", // Lấy RoomNumber
+                    RoomNumber = _context.Rooms.FirstOrDefault(r => r.RoomID == i.RoomID)?.RoomNumber ?? "Unknown", // Get RoomNumber
                     Price = i.Price,
                     Quantity = i.Quantity,
                     CheckInDate = i.CheckInDate,
-                    CheckOutDate = i.CheckOutDate
+                    CheckOutDate = i.CheckOutDate,
+                    HotelID = _context.Rooms.FirstOrDefault(r => r.RoomID == i.RoomID)?.HotelID ?? Guid.Empty // Get HotelID based on RoomID
                 }).ToList(),
-                Subtotal = cart.CartItems.Sum(i => i.Price),
-                Tax = CalculateTax(cart.CartItems.Sum(item => item.Price)),
-                Total = cart.CartItems.Sum(i => i.Price) + CalculateTax(cart.CartItems.Sum(item => item.Price))
+                Subtotal = cart.CartItems.Sum(i => i.Price * i.Quantity),
+                Tax = CalculateTax(cart.CartItems.Sum(item => item.Price * item.Quantity)),
+                Total = cart.CartItems.Sum(i => i.Price * i.Quantity) + CalculateTax(cart.CartItems.Sum(item => item.Price * item.Quantity))
             };
         }
+
 
 
 
@@ -70,7 +72,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             }
 
             var nights = (checkOutDate - checkInDate).Days;
-            var totalPrice = price * nights;
+            var totalPrice = price;
 
             // Kiểm tra tình trạng phòng đã được đặt
             var bookedDates = _context.Bookings
@@ -112,8 +114,10 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             cart.CartItems.Add(newCartItem);
             UpdateCart(cart);
 
-            return Json(new { success = true, message = "Room added to cart." });
+            // Return the redirect URL after success
+            return Json(new { success = true, redirectUrl = Url.Action("ShowBill", "Cart") });
         }
+
 
         [HttpPost]
         public IActionResult UpdateCart(Guid cartItemId, int quantity)
@@ -137,67 +141,84 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 return Json(new { success = false, message = "Invalid quantity." });
             }
         }
-
         [HttpPost]
         public IActionResult RemoveFromCart(Guid cartItemId)
         {
-            // Lấy giỏ hàng từ session
-            var cart = GetCart();
-            if (cart == null || cart.CartItems == null)
+            try
             {
-                return Json(new { success = false, message = "Cart is empty or not found." });
-            }
+                // Lấy giỏ hàng từ session
+                var cart = GetCart();
+                if (cart == null || cart.CartItems == null)
+                {
+                    return Json(new { success = false, message = "Your cart is empty or cannot be found." });
+                }
 
-            // Tìm mục cần xóa trong giỏ hàng
-            var item = cart.CartItems.FirstOrDefault(i => i.CartItemID == cartItemId);
-            if (item == null)
+                // Tìm mục cần xóa trong giỏ hàng
+                var item = cart.CartItems.FirstOrDefault(i => i.CartItemID == cartItemId);
+                if (item == null)
+                {
+                    return Json(new { success = false, message = "Item not found in your cart." });
+                }
+
+                // Xóa mục khỏi giỏ hàng
+                cart.CartItems.Remove(item);
+
+                // Cập nhật lại giỏ hàng trong session
+                UpdateCart(cart);
+
+                return Json(new { success = true, message = "Item has been removed from your cart." });
+            }
+            catch (Exception ex)
             {
-                return Json(new { success = false, message = "Item not found in the cart." });
+                // Xử lý lỗi
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
             }
-
-            // Xóa mục khỏi giỏ hàng
-            cart.CartItems.Remove(item);
-
-            // Cập nhật lại giỏ hàng trong session
-            UpdateCart(cart);
-
-            return Json(new { success = true, message = "Item removed from cart." });
         }
 
-
-        public async Task<IActionResult> ShowBill()
+        public async Task<IActionResult> ShowBill(string discountCode)
         {
-            // Fetch the current cart
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(currentUser.ProfilePictureFileName)
+                    ? "default.png"
+                    : currentUser.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+            // Lấy giỏ hàng hiện tại
             var cart = GetCart();
 
-            // Redirect to the home page if the cart is empty
+            // Chuyển hướng đến trang chủ nếu giỏ hàng trống
             if (cart == null || !cart.CartItems.Any())
             {
-                TempData["Message"] = "Your cart is empty!";
+                TempData["Message"] = "Giỏ hàng của bạn trống!";
                 return RedirectToAction("Index", "Home");
             }
 
-            // Get the logged-in user's ID
+            // Lấy thông tin người dùng đã đăng nhập
             var userId = _userManager.GetUserId(User);
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                TempData["Error"] = "User not found. Please log in.";
-                return RedirectToAction("Login", "Account");
+                TempData["Error"] = "Người dùng không tồn tại. Vui lòng đăng nhập.";
+                return Redirect("~/Identity/Account/Login");
             }
 
+            // Fetch room details
             var rooms = await _context.Rooms
-                .Include(r => r.RoomMediaDetails) // Include RoomMediaDetails
-                    .ThenInclude(rmd => rmd.Media) // Include the Media for each RoomMediaDetail
+                .Include(r => r.RoomMediaDetails)
+                    .ThenInclude(rmd => rmd.Media)
                 .ToListAsync();
 
+            // Chuyển đổi các mục trong giỏ hàng sang view model
             var cartItems = cart.CartItems.Select(item =>
             {
                 var room = rooms.FirstOrDefault(r => r.RoomID == item.RoomID);
                 var mediaUrl = room?.RoomMediaDetails
-                    .Where(rmd => rmd.Media != null && !string.IsNullOrEmpty(rmd.Media.FileName)) // Ensure valid media
-                    .Select(rmd => rmd.Media.FileName) // Get the media file name
-                    .FirstOrDefault(); // Get the first media file
+                    .Where(rmd => rmd.Media != null && !string.IsNullOrEmpty(rmd.Media.FileName))
+                    .Select(rmd => rmd.Media.FileName)
+                    .FirstOrDefault();
 
                 return new CartItemViewModel
                 {
@@ -207,25 +228,29 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                     Quantity = item.Quantity,
                     CheckInDate = item.CheckInDate,
                     CheckOutDate = item.CheckOutDate,
-                    RoomNumber = room?.RoomNumber,
-                    FilePath = mediaUrl // Use the media URL here instead of ImagePath
+                    RoomNumber = room?.RoomNumber ?? "Unknown",
+                    FilePath = mediaUrl
                 };
             }).ToList();
 
-            // Calculate totals
+            // Tính toán tổng
             var subTotal = cartItems.Sum(item => item.Price * item.Quantity);
-            var tax = CalculateTax(subTotal);
-            var total = subTotal + tax;
+            var discount = await CalculateDiscount(discountCode, subTotal); // Sử dụng await
+            var tax = subTotal * 0.1m; // Tính thuế 10% trên SubTotal
+            var total = subTotal - discount + tax; // Tổng = SubTotal - Discount + Tax
 
+            // Tạo OrderViewModel
             var orderViewModel = new OrderViewModel
             {
                 CartItems = cartItems,
                 SubTotal = subTotal,
+                Discount = discount,
                 Tax = tax,
                 Total = total,
+                DiscountCode = discountCode, // Lưu mã giảm giá
                 FirstName = user.FirstName ?? string.Empty,
                 LastName = user.LastName ?? string.Empty,
-                Phone = user.Phone ?? string.Empty,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
                 Email = user.Email ?? string.Empty,
                 Address = user.Address ?? string.Empty,
                 Address2 = user.Address2 ?? string.Empty,
@@ -237,7 +262,33 @@ namespace HotelBookingMVC.Finalproject2.Controllers
 
             return View(orderViewModel);
         }
+        private async Task<decimal> CalculateDiscount(string discountCode, decimal subTotal)
+        {
+            // Nếu không có mã giảm giá, trả về 0
+            if (string.IsNullOrEmpty(discountCode))
+            {
+                return 0;
+            }
 
+            // Tìm mã giảm giá trong cơ sở dữ liệu
+            var promotion = await _context.Promotions
+                .FirstOrDefaultAsync(p => p.Code == discountCode && p.IsActive && p.ExpirationDate >= DateTime.Now);
+
+            // Log mã giảm giá và subtotal
+            Console.WriteLine($"Discount Code: {discountCode}, Subtotal: {subTotal}");
+
+            // Nếu mã giảm giá hợp lệ, tính toán giảm giá tối đa không vượt quá subtotal
+            if (promotion != null)
+            {
+                var discountAmount = Math.Min(promotion.DiscountAmount, subTotal);
+                Console.WriteLine($"Valid Discount: {discountAmount}");
+                return discountAmount; // Giảm giá không được vượt quá subtotal
+            }
+
+            // Nếu mã giảm giá không hợp lệ, trả về 0
+            Console.WriteLine("Invalid Discount Code");
+            return 0;
+        }
 
         [HttpPost]
         [Route("Cart/ProcessPayment")]
@@ -300,7 +351,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                         SubTotal = cart.CartItems.Sum(item => item.Price * item.Quantity),
                         Tax = CalculateTax(cart.CartItems.Sum(item => item.Price * item.Quantity)),
                         Total = cart.CartItems.Sum(item => item.Price * item.Quantity) + CalculateTax(cart.CartItems.Sum(item => item.Price * item.Quantity)),
-                        Phone = user.PhoneNumber,
+                        PhoneNumber = user.PhoneNumber,
                         Address = user.Address,
                         BillID = Guid.NewGuid()
                     };
@@ -414,36 +465,39 @@ namespace HotelBookingMVC.Finalproject2.Controllers
 
                 // Tạo chuỗi nội dung email
                 var subject = $"[Booking Notification] New Booking for Hotel: {hotel.Name}";
-                var body = $@"
-                Dear {managerName},
 
-                A new booking has been made for your hotel '{hotel.Name}'.
+                // Truy xuất thông tin phòng từ database
+                var roomDetails = cart.CartItems
+                    .Select(item =>
+                    {
+                        var room = _context.Rooms.FirstOrDefault(r => r.RoomID == item.RoomID);
+                        return room != null
+                            ? $"Room {room.RoomNumber}, from {item.CheckInDate.ToShortDateString()} to {item.CheckOutDate.ToShortDateString()}"
+                            : "Room information not found";
+                    })
+                    .ToList();
 
-                Booking Details:
-                - Rooms: {string.Join(", ", cart.CartItems.Select(i => i.RoomID))}
-                ";
 
-                // Thêm thông tin chi tiết các phòng vào email body
-                foreach (var item in cart.CartItems)
-                {
-                    body += $@"
-                  - Room {item.RoomID}, from {item.CheckInDate.ToShortDateString() ?? "N/A"} to {item.CheckOutDate.ToShortDateString() ?? "N/A"}
-    ";
-                }
+                            var body = $@"
+                    Dear {managerName},
 
-                body += $@"
-                Total Amount: {cart.Total:C}
+                    A new booking has been made for your hotel '{hotel.Name}'.
 
-                Please log in to the system for more details.
+                    Booking Details:
+                    - Rooms:
+                    {string.Join("\n", roomDetails)}
 
-                Best regards,
-                Hotel Booking System
-                ";
+                    Please log in to the system for more details.
 
-                // Gửi email
-                await _emailSender.SendEmailAsync(managerEmail, subject, body);
-            }
-        }
+                    Best regards,
+                    Hotel Booking System
+                    ";
+
+                            // Gửi email
+                            await _emailSender.SendEmailAsync(managerEmail, subject, body);
+                        }
+                    }
+
 
 
 
@@ -453,7 +507,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var emailContent = $"Dear {user.UserName},\n\nYour booking has been confirmed for the following rooms:\n";
-
+            
             foreach (var item in cart.CartItems)
             {
                 // Get the room from the database using RoomID to include RoomNumber in the email
@@ -491,7 +545,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 {
                     if (item.Quantity == 0)
                     {
-                        item.Quantity = 1; 
+                        item.Quantity = 1;
                     }
                 }
             }
@@ -499,11 +553,14 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             return cart;
         }
 
-
         private void UpdateCart(CartViewModel cart)
         {
-            HttpContext.Session.SetString(CartSessionKey, JsonConvert.SerializeObject(cart));
+            if (cart != null)
+            {
+                HttpContext.Session.SetString(CartSessionKey, JsonConvert.SerializeObject(cart));
+            }
         }
+
         private void ClearCart()
         {
             HttpContext.Session.Remove(CartSessionKey);

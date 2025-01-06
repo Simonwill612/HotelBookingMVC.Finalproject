@@ -57,7 +57,6 @@
                                     </td>
                                     <td>
                                         <a asp-action="Edit" asp-route-id="@item.HotelID" class="btn btn-success">Edit</a>
-                                        <a asp-action="Details" asp-route-id="@item.HotelID" class="btn btn-info">Details</a>
                                         <a asp-action="Delete" asp-route-id="@item.HotelID" class="btn btn-danger">Delete</a>
                                         <a asp-controller="Rooms" asp-action="Index" asp-route-hotelId="@item.HotelID" class="btn btn-warning">Manage Rooms</a>
                                         <a asp-controller="Feedbacks" asp-action="Index" asp-route-hotelId="@item.HotelID" class="btn btn-secondary">Feedback</a> <!-- Nút Feedback -->

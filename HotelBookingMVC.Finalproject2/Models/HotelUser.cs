@@ -11,7 +11,7 @@ namespace HotelBookingMVC.Finalproject2.Models
         [StringLength(100)]
         public string? LastName { get; set; }
 
-        [StringLength(100)] 
+        [StringLength(100)]
         public string? Phone { get; set; }
 
         [StringLength(200)]
@@ -33,6 +33,6 @@ namespace HotelBookingMVC.Finalproject2.Models
         public string? ProfilePictureFileName { get; set; }
 
         public virtual ICollection<IdentityUserRole<string>> Roles { get; } = new List<IdentityUserRole<string>>();
-        public DateTime DateCreatedAt { get; internal set; }
+        public DateTime DateCreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

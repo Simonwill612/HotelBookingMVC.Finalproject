@@ -1,34 +1,54 @@
-﻿@model IEnumerable<HotelBookingMVC.Finalproject2.Data.Entities.Promotion>
+﻿@using HotelBookingMVC.Finalproject2.Data.Entities
 
-<h2>Promotions</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Code</th>
-            <th>Discount Amount</th>
-            <th>Expiration Date</th>
-            <th>Quantity Limit</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var promo in Model)
-        {
-            <tr id="promo-@promo.PromotionID">
-                <td>@promo.Code</td>
-                <td>@promo.DiscountAmount.ToString("C")</td>
-                <td>@promo.ExpirationDate.ToShortDateString()</td>
-                <td>@promo.QuantityLimit</td>
-                <td>
-                    <a href="@Url.Action("Edit", "Promotions", new { id = promo.PromotionID })" class="btn btn-warning edit-promo">Edit</a>
-                    <button class="btn btn-danger delete-promo" data-id="@promo.PromotionID">Delete</button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+@{
+    ViewData["Title"] = "Promotions";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
 
-<a href="@Url.Action("Create", "Promotions")" class="btn btn-primary">Create New Promotion</a>
+<h1 class="text-center">Promotions Manager</h1>
+
+<p class="text-center">
+    <a href="@Url.Action("Create", "Promotions")" class="btn btn-primary">Create New Promotion</a>
+</p>
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="bg-light text-center rounded p-4">
+                <div class="table-responsive">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Hotel Name</th>
+                                <th scope="col">Code</th>
+                                <th scope="col">Discount Amount</th>
+                                <th scope="col">Expiration Date</th>
+                                <th scope="col">Quantity Limit</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var promo in Model)
+                            {
+                                <tr id="promo-@promo.PromotionID">
+                                    <td>@(promo.Hotel != null ? promo.Hotel.Name : "All")</td>
+                                    <td>@promo.Code</td>
+                                    <td>@promo.DiscountAmount.ToString("C")</td>
+                                    <td>@promo.ExpirationDate.ToShortDateString()</td>
+                                    <td>@promo.QuantityLimit</td>
+                                    <td>
+                                        <a href="@Url.Action("Edit", "Promotions", new { id = promo.PromotionID })" class="btn btn-success">Edit</a>
+                                        <button class="btn btn-danger delete-promo" data-id="@promo.PromotionID">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.6.0.min.js"></script>

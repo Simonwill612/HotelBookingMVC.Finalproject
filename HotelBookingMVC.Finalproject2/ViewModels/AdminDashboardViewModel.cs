@@ -4,6 +4,7 @@
     {
         public List<UserViewModel> Customers { get; set; }
         public List<UserViewModel> Managers { get; set; }
+        public List<UserViewModel> Admins { get; set; }
     }
 
 }

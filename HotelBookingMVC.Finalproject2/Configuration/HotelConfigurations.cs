@@ -11,8 +11,8 @@ public class HotelConfiguration : IEntityTypeConfiguration<Hotel>
         builder.Property(h => h.UserID)
             .IsRequired(); // Đảm bảo UserID không được để trống
 
-        builder.HasIndex(h => h.UserID)
-            .IsUnique();
+        //builder.HasIndex(h => h.UserID)
+        //    .IsUnique();
 
         builder.Property(h => h.Name)
             .IsRequired()

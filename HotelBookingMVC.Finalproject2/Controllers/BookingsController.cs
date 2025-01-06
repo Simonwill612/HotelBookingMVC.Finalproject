@@ -9,6 +9,8 @@ using HotelBookingMVC.Finalproject2.Data;
 using HotelBookingMVC.Finalproject2.Data.Entities;
 using HotelBookingMVC.Finalproject2.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using HotelBookingMVC.Finalproject2.Models;
 
 namespace HotelBookingMVC.Finalproject2.Controllers
 {
@@ -17,15 +19,31 @@ namespace HotelBookingMVC.Finalproject2.Controllers
     public class BookingsController : Controller
     {
         private readonly HotelBookingDbContext _context;
+        private readonly UserManager<HotelUser> _userManager;
 
-        public BookingsController(HotelBookingDbContext context)
+        public BookingsController(UserManager<HotelUser> userManager, HotelBookingDbContext context)
         {
             _context = context;
+            _userManager = userManager;
+
         }
 
         // GET: Bookings
         public async Task<IActionResult> Index()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định nếu không có
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+            else
+            {
+                ViewData["UserProfilePicture"] = "/uploads/profile_pictures/default.png";
+            }
             var bookings = await _context.Bookings
                 .Include(b => b.Room) // Include related Room entity
                 .ToListAsync();
@@ -36,7 +54,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 BookingID = b.BookingID,
                 UserID = b.UserID,
                 RoomID = b.RoomID,
-                RoomNumber = b.Room?.RoomNumber, 
+                RoomNumber = b.Room?.RoomNumber,
                 BookingDate = b.BookingDate,
                 CheckInDate = b.CheckInDate,
                 CheckOutDate = b.CheckOutDate,
@@ -47,119 +65,6 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             return View(bookingViewModels);
         }
 
-
-        // GET: Bookings/Details/5
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var booking = await _context.Bookings
-                .Include(b => b.Room)
-                .FirstOrDefaultAsync(m => m.BookingID == id);
-
-            if (booking == null)
-            {
-                return NotFound();
-            }
-
-            var bookingViewModel = new BookingViewModel
-            {
-                BookingID = booking.BookingID,
-                UserID = booking.UserID,
-                RoomID = booking.RoomID,
-                RoomNumber = booking.Room?.RoomNumber,
-                BookingDate = booking.BookingDate,
-                CheckInDate = booking.CheckInDate,
-                CheckOutDate = booking.CheckOutDate,
-                TotalPrice = booking.TotalPrice,
-                Status = booking.Status
-            };
-
-            return View(bookingViewModel);
-        }
-
-
-        // GET: Bookings/Create
-        public IActionResult Create()
-        {
-            ViewData["RoomID"] = new SelectList(_context.Rooms, "RoomID", "RoomNumber");
-            return View();
-        }
-
-        // POST: Bookings/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookingID,UserID,RoomID,BookingDate,CheckInDate,CheckOutDate,Status,TotalPrice")] Booking booking)
-        {
-            if (ModelState.IsValid)
-            {
-                booking.BookingID = Guid.NewGuid();
-                _context.Add(booking);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["RoomID"] = new SelectList(_context.Rooms, "RoomID", "RoomNumber", booking.RoomID);
-            return View(booking);
-        }
-
-        // GET: Bookings/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var booking = await _context.Bookings.FindAsync(id);
-            if (booking == null)
-            {
-                return NotFound();
-            }
-            ViewData["RoomID"] = new SelectList(_context.Rooms, "RoomID", "RoomNumber", booking.RoomID);
-            return View(booking);
-        }
-
-        // POST: Bookings/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("BookingID,UserID,RoomID,BookingDate,CheckInDate,CheckOutDate,Status,TotalPrice")] Booking booking)
-        {
-            if (id != booking.BookingID)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(booking);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BookingExists(booking.BookingID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["RoomID"] = new SelectList(_context.Rooms, "RoomID", "RoomNumber", booking.RoomID);
-            return View(booking);
-        }
-
         // GET: Bookings/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
@@ -167,16 +72,42 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định nếu không có
+                    : user.ProfilePictureFileName;
 
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+            else
+            {
+                ViewData["UserProfilePicture"] = "/uploads/profile_pictures/default.png";
+            }
             var booking = await _context.Bookings
                 .Include(b => b.Room)
                 .FirstOrDefaultAsync(m => m.BookingID == id);
+
             if (booking == null)
             {
                 return NotFound();
             }
 
-            return View(booking);
+            // Map the Booking entity to BookingViewModel
+            var bookingViewModel = new BookingViewModel
+            {
+                BookingID = booking.BookingID,
+                RoomNumber = booking.Room.RoomNumber,
+                BookingDate = booking.BookingDate,
+                CheckInDate = booking.CheckInDate,
+                CheckOutDate = booking.CheckOutDate,
+                TotalPrice = booking.TotalPrice,
+                Status = booking.Status,
+                // Add other properties as needed
+            };
+
+            return View(bookingViewModel);
         }
 
         // POST: Bookings/Delete/5
@@ -184,19 +115,48 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var booking = await _context.Bookings.FindAsync(id);
+            // Find the booking by ID
+            var booking = await _context.Bookings
+                .Include(b => b.Payments)  // Make sure to include related payments
+                .FirstOrDefaultAsync(b => b.BookingID == id);
+
             if (booking != null)
             {
+                // Delete related payments
+                if (booking.Payments != null)
+                {
+                    _context.Payments.RemoveRange(booking.Payments); // Remove all payments associated with this booking
+                }
+
+                // Remove the booking
                 _context.Bookings.Remove(booking);
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
 
         private bool BookingExists(Guid id)
         {
             return _context.Bookings.Any(e => e.BookingID == id);
+        }
+     
+        public async Task<IActionResult> Confirmation()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+
+            return View();
         }
     }
 }

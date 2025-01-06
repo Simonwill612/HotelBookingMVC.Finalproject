@@ -13,7 +13,13 @@ namespace HotelBookingMVC.Finalproject2.Configuration
             builder.HasOne(b => b.Room)
                    .WithMany(r => r.Bookings)
                    .HasForeignKey(b => b.RoomID)
-                   .OnDelete(DeleteBehavior.Restrict); // Avoid cascade delete to prevent unintentional data loss.
+                   .OnDelete(DeleteBehavior.NoAction); // Avoid cascade delete to prevent unintentional data loss.
+
+            // Configure the relationship between Booking and Payment
+            builder.HasMany(b => b.Payments) // A booking can have many payments
+                   .WithOne(p => p.Booking)    // Each payment is associated with one booking
+                   .HasForeignKey(p => p.BookingID) // Foreign key in Payment table
+                   .OnDelete(DeleteBehavior.Cascade); // Enable cascade delete
 
             builder.Property(b => b.BookingDate)
                    .HasDefaultValueSql("GETUTCDATE()");

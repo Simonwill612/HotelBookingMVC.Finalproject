@@ -108,9 +108,9 @@ td {
 }
 
 .dark th,
-.dark td {
+/*.dark td {
   color: white;
-}
+}*/
 
 .btn-success {
   margin-top: 0px;
@@ -152,9 +152,21 @@ textarea:focus {
   box-shadow: none;
 }
 .dark p, .dark .uncheck{
-    color: white;
+    color: white !important;
 }
 
 .modal-content{
     color:black;
+}
+
+.dark .form-control, .dark .form-floating {
+    color: black;
+}
+
+.dark .item_bill {
+    background-color: #212020 !important;
+}
+
+.dark .text-muted{
+    color:white !important;
 }

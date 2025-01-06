@@ -36,7 +36,17 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         // Hiển thị danh sách khách sạn được nhóm theo thành phố
         public async Task<IActionResult> Index()
         {
-            // Nhóm khách sạn theo từng thành phố
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+
+            // Nhóm khách sạn theo từng thành phố và giới hạn 3 khách sạn mỗi nhóm
             var groupedHotels = await _context.Hotels
                 .Include(h => h.HotelMediaDetails)
                 .ThenInclude(h => h.Media)
@@ -64,10 +74,13 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                                 FilePath = rmd.Media.FilePath,
                                 MediaType = rmd.Media.MediaType
                             }).ToList()
-                    }).ToList());
+                    })
+                    .Take(3) // Giới hạn chỉ 3 khách sạn mỗi thành phố
+                    .ToList());
 
             return View(groupedHotels);
         }
+
 
         // GET: Home/CreateFeedback
         [HttpGet]
@@ -109,14 +122,31 @@ namespace HotelBookingMVC.Finalproject2.Controllers
 
 
         // show all hotels
-        public async Task<IActionResult> Hotels(string[] selectedStates, int page = 1, int pageSize = 6)
+        public async Task<IActionResult> Hotels(string[] selectedStates, string[] selectedCities, int page = 1, int pageSize = 6)
         {
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+
             var query = _context.Hotels.AsQueryable();
 
             // Lọc theo state nếu có
             if (selectedStates != null && selectedStates.Any())
             {
                 query = query.Where(h => selectedStates.Contains(h.State));
+            }
+
+            // Lọc theo city nếu có
+            if (selectedCities != null && selectedCities.Any())
+            {
+                query = query.Where(h => selectedCities.Contains(h.City));
             }
 
             // Tính tổng số khách sạn sau khi lọc
@@ -155,9 +185,14 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalHotels / pageSize);
 
-            // Lấy danh sách các state cho bộ lọc
+            // Lấy danh sách các state và city cho bộ lọc
             ViewBag.States = await _context.Hotels
                 .Select(h => h.State)
+                .Distinct()
+                .ToListAsync();
+
+            ViewBag.Cities = await _context.Hotels
+                .Select(h => h.City)
                 .Distinct()
                 .ToListAsync();
 
@@ -166,17 +201,38 @@ namespace HotelBookingMVC.Finalproject2.Controllers
 
 
 
-        // search hotels for city
-        public async Task<IActionResult> Search(string city = "")
-        {
-            var hotelsQuery = _context.Hotels
-                .Include(h => h.HotelMediaDetails)
-                .ThenInclude(h => h.Media)
-                .AsQueryable();
 
-            if (!string.IsNullOrEmpty(city))
+        // search hotels for city
+        public async Task<IActionResult> Search(string city = "", string[] selectedStates = null)
+        {
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
             {
-                hotelsQuery = hotelsQuery.Where(h => h.City.Contains(city));
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+
+            // Lấy tất cả các khách sạn thuộc thành phố được tìm kiếm
+            var allHotelsInCity = _context.Hotels
+                .Where(h => h.City.Contains(city))
+                .Include(h => h.HotelMediaDetails)
+                .ThenInclude(h => h.Media);
+
+            // Lấy danh sách States từ tất cả các khách sạn thuộc thành phố
+            var allStates = await allHotelsInCity
+                .Select(h => h.State)
+                .Distinct()
+                .ToListAsync();
+
+            // Lọc khách sạn dựa trên các State được chọn (nếu có)
+            var hotelsQuery = allHotelsInCity.AsQueryable();
+            if (selectedStates != null && selectedStates.Any())
+            {
+                hotelsQuery = hotelsQuery.Where(h => selectedStates.Contains(h.State));
             }
 
             var hotels = await hotelsQuery.Select(h => new HotelViewModel
@@ -203,9 +259,17 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                 }).ToList()
             }).ToListAsync();
 
+            // Truyền danh sách tất cả States của thành phố vào ViewBag
+            ViewBag.States = allStates;
+
+            // Truyền danh sách State được chọn để giữ trạng thái
+            ViewBag.SelectedStates = selectedStates;
+
+            // Truyền giá trị city để duy trì tìm kiếm ban đầu
+            ViewBag.City = city;
+
             return View("SearchResults", hotels);
         }
-
 
 
         // Hiển thị chi tiết khách sạn
@@ -226,7 +290,15 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định
+                    : user.ProfilePictureFileName;
 
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
             // Lấy danh sách feedbacks liên quan đến khách sạn
             var feedbacks = await _context.Feedbacks
                 .Where(f => f.HotelID == id)
@@ -303,7 +375,7 @@ namespace HotelBookingMVC.Finalproject2.Controllers
 
             // Nếu có roomId, lấy chi tiết phòng
             var selectedRoom = roomId != null
-                ? updatedRooms.FirstOrDefault(r => r.RoomID == roomId)
+        ? updatedRooms.FirstOrDefault(r => r.RoomID == roomId)
                 : null;
 
             // Truyền thông tin khách sạn vào ViewBag
@@ -342,16 +414,25 @@ namespace HotelBookingMVC.Finalproject2.Controllers
 
             return View();
         }
-
-        [HttpGet]
-        public IActionResult Contact()
+        public async Task<IActionResult> Contact()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Contact(ContactUsViewModel model)
         {
+           
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -380,10 +461,21 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         }
 
 
-        public IActionResult AboutUs()
+        public async Task<IActionResult> AboutUs()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+
             return View();
         }
+
 
 
         public IActionResult Privacy()

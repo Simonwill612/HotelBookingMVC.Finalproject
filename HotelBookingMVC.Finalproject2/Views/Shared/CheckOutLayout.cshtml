@@ -1,4 +1,4 @@
-﻿﻿
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,6 +35,7 @@
     <link href="~/css/index.css" rel="stylesheet" />
     <link href="~/css/style.css" rel="stylesheet" />
     <link href="~/css/product_detail.css" rel="stylesheet" />
+
 </head>
 <body>
     <header>
@@ -52,20 +53,41 @@
                             </div>
                         </li>
                         <div class="dark_mode d-flex align-items-center justify-content-between" style="padding: 10px;">
-                            <span class="text-dark">Hello, @User.Identity?.Name!</span>
-
-                            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                <button type="submit" class="btn btn-primary">Logout</button>
-                            </form>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <img src="@ViewData["UserProfilePicture"]"
+                                     class="rounded-circle"
+                                     style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;"
+                                     onerror="this.src='@Url.Content("~/uploads/profile_pictures/default.png")';" />
+                                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage" style="margin-right: 30px">
+                                    @User.Identity?.Name!
+                                </a>
+                            }
+                            <nav>
+                                <ul>
+                                    @if (User.Identity.IsAuthenticated)
+                                    {
+                                        <li>
+                                            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                                <button type="submit" class="btn btn-primary">Logout</button>
+                                            </form>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <a href="/Identity/Account/Login">
+                                                <button class="btn-primary">Login</button>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </nav>
 
 
                         </div>
 
-                        <li>
-                            <a href="/Identity/Account/Login">
-                                <button class="btn-primary">Login</button>
-                            </a>
-                        </li>
+
 
 
                         <li>
@@ -130,7 +152,7 @@
         </div>
     </header>
     <main>
-        
+
 
         @RenderBody()
     </main>
@@ -204,14 +226,7 @@
                 </div>
             </div>
         </div>
-        <div class="container">
-            <div class="contact_copy text-center">
-                <p class="d-inline">
-                    <i class="fa-regular fa-copyright"></i> 2024 All Rights Reserved by
-                </p>
-                <a href="#">Thanh Nguyen.</a>
-            </div>
-        </div>
+
     </footer>
 
     <!-- Cart Modal -->
@@ -220,17 +235,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="cartModalLabel">Cart</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    
                 </div>
                 <div class="modal-body" id="cartModalBody">
                     <!-- Cart content will be loaded here via AJAX -->
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <a class="btn btn-primary" asp-controller="Cart" asp-action="Index">Go to Cart</a>
-                </div>
+              
             </div>
         </div>
     </div>

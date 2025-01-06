@@ -37,6 +37,15 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         // GET: Hotels
         public async Task<IActionResult> Index()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(currentUser.ProfilePictureFileName)
+                    ? "default.png"
+                    : currentUser.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
             // Lấy UserID từ thông tin đăng nhập (claims)
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -70,48 +79,21 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             return View(hotelViewModels);
         }
 
-        // GET: Hotels/Details/{id}
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var hotel = await _context.Hotels
-                .Include(h => h.HotelMediaDetails)
-                .ThenInclude(hmd => hmd.Media) // Ensure Media is included
-                .FirstOrDefaultAsync(m => m.HotelID == id);
-
-            if (hotel == null)
-            {
-                return NotFound();
-            }
-
-            var hotelViewModel = new HotelViewModel
-            {
-                HotelID = hotel.HotelID,
-                Name = hotel.Name,
-                Address = hotel.Address,
-                City = hotel.City,
-                State = hotel.State,
-                ZipCode = hotel.ZipCode,
-                PhoneNumber = hotel.PhoneNumber,
-                Email = hotel.Email,
-                Description = hotel.Description,
-                CreatedAt = hotel.CreatedAt,
-                UpdatedAt = hotel.UpdatedAt,
-                Media = hotel.HotelMediaDetails
-                    .Select(m => m.Media != null ? new MediaViewModel(m.Media) : null) // Check for null Media
-                    .ToList()
-            };
-
-            return View(hotelViewModel);
-        }
 
         // GET: Hotels/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+
             return View();
         }
 
@@ -159,7 +141,15 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định
+                    : user.ProfilePictureFileName;
 
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
             var hotel = await _context.Hotels.FindAsync(id);
             if (hotel == null)
             {
@@ -277,7 +267,19 @@ namespace HotelBookingMVC.Finalproject2.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định nếu không có
+                    : user.ProfilePictureFileName;
 
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
+            else
+            {
+                ViewData["UserProfilePicture"] = "/uploads/profile_pictures/default.png";
+            }
             var hotel = await _context.Hotels
                 .FirstOrDefaultAsync(m => m.HotelID == id);
 
@@ -294,13 +296,25 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var hotel = await _context.Hotels.FindAsync(id);
+            var hotel = await _context.Hotels
+                .Include(h => h.Bookings) // Include Bookings
+                .Include(h => h.Promotions) // Include Promotions
+                .FirstOrDefaultAsync(m => m.HotelID == id);
+
             if (hotel == null)
             {
                 return NotFound();
             }
 
-            // Fetch associated media details
+            // Xóa các booking liên quan đến khách sạn
+            var bookingsToDelete = _context.Bookings.Where(b => b.HotelID == id).ToList();
+            _context.Bookings.RemoveRange(bookingsToDelete);
+
+            // Xóa các promotions liên quan đến khách sạn
+            var promotionsToDelete = _context.Promotions.Where(p => p.HotelID == id).ToList();
+            _context.Promotions.RemoveRange(promotionsToDelete);
+
+            // Xóa các media liên quan đến khách sạn
             var mediaToDelete = await _context.HotelMediaDetails
                 .Where(h => h.HotelId == id)
                 .Include(h => h.Media)
@@ -317,19 +331,16 @@ namespace HotelBookingMVC.Finalproject2.Controllers
                     }
                     _context.Media.Remove(media);
                 }
-                else
-                {
-                    // Log or handle cases where media is null
-                    _logger.LogWarning($"Media for HotelID {id} is null.");
-                }
             }
 
-            // Remove hotel entity
+            // Xóa khách sạn
             _context.Hotels.Remove(hotel);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
+
+
 
         // GET: Hotels/DeleteMedia/{mediaId}
         public async Task<IActionResult> DeleteMedia(Guid? mediaId)

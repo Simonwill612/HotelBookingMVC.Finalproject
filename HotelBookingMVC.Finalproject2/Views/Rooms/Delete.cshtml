@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Delete Room";
-    Layout = "~/Views/Shared/DeleteRoomsLayout.cshtml";
+    Layout = "~/Views/Shared/HotelsLayout.cshtml";
 }
 
 <div class="container-fluid pt-4 px-4">
@@ -33,7 +33,7 @@
                 </div>
             </div>
 
-            <form asp-action="DeleteConfirmed" method="post">
+            <form asp-action="Delete" method="post">
                 <input type="hidden" asp-for="RoomID" />
                 <input type="hidden" asp-for="HotelID" />
                 <button type="submit" class="btn btn-danger">Delete</button>

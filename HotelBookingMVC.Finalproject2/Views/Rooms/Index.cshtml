@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Rooms - " + ViewBag.HotelName;
-    Layout = "~/Views/Shared/RoomsLayout.cshtml";
+    Layout = "~/Views/Shared/HotelsLayout.cshtml";
 }
 
 <h1 class="text-center">Rooms for @ViewBag.HotelName</h1>
@@ -36,7 +36,16 @@
                                     <td>@Html.DisplayFor(modelItem => room.Type)</td>
                                     <td>@Html.DisplayFor(modelItem => room.PricePerNight)</td>
                                     <td>@Html.DisplayFor(modelItem => room.Description)</td>
-                                    <td>@Html.DisplayFor(modelItem => room.Availability)</td>
+                                    <td>
+                                        @if (room.Availability)
+                                        {
+                                            <span class="text-success">Available</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">Booked</span>
+                                        }
+                                    </td>
                                     <td>
                                         @foreach (var media in room.MediaViewModels)
                                         {
@@ -57,7 +66,6 @@
                                     </td>
                                     <td>
                                         <a asp-action="Edit" asp-route-id="@room.RoomID" class="btn btn-success">Edit</a>
-                                        <a asp-action="Details" asp-route-id="@room.RoomID" class="btn btn-info">Details</a>
                                         <a asp-action="Delete" asp-route-id="@room.RoomID" class="btn btn-danger">Delete</a>
                                     </td>
                                 </tr>

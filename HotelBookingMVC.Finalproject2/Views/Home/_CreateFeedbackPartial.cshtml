@@ -8,27 +8,27 @@
 }
 <style>
     .star {
-        color: #ccc; 
+        color: #ccc;
         cursor: pointer;
         font-size: 1.5rem;
         transition: color 0.2s ease-in-out;
     }
 
-    input[type="radio"]:checked + .star,
+        input[type="radio"]:checked + .star,
         .star:hover,
         .star:hover ~ .star {
-            color: gold; 
+            color: gold;
         }
 
     .d-flex {
         display: flex;
-        gap: 8px; 
+        gap: 8px;
     }
 
 </style>
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="CreateFeedback" asp-controller="Home" method="post">
+        <form asp-action="CreateFeedback" asp-controller="Home" method="post" id="feedbackForm">
             <div class="form-group">
                 <label asp-for="StarRating" class="control-label">Rating</label>
                 <div id="starRating" class="d-flex">
@@ -75,4 +75,22 @@
             }
         });
     });
+
+    // Add custom form validation
+    document.getElementById('feedbackForm').onsubmit = function () {
+        const starRating = document.querySelector('input[name="StarRating"]:checked');
+        const comment = document.querySelector('[name="Comment"]').value.trim();
+
+        if (!starRating) {
+            alert("Please select a star rating.");
+            return false;
+        }
+
+        if (!comment) {
+            alert("Please enter a comment.");
+            return false;
+        }
+
+        return true;
+    }
 </script>

@@ -46,9 +46,11 @@ public class AdminDashboardController : Controller
     // GET: /Account/Index
     public async Task<IActionResult> Index()
     {
+        // Lấy danh sách người dùng
         var users = _userManager.Users.ToList();
         var customerData = new List<UserViewModel>();
         var managerData = new List<UserViewModel>();
+        var adminData = new List<UserViewModel>();
 
         foreach (var user in users)
         {
@@ -56,6 +58,16 @@ public class AdminDashboardController : Controller
 
             if (roles.Contains("Admin"))
             {
+                adminData.Add(new UserViewModel
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    EmailConfirmed = user.EmailConfirmed,
+                    Roles = roles,
+                    ProfilePictureFileName = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                        ? "default.png"
+                        : user.ProfilePictureFileName
+                });
                 continue;
             }
 
@@ -68,7 +80,7 @@ public class AdminDashboardController : Controller
                     EmailConfirmed = user.EmailConfirmed,
                     Roles = roles,
                     ProfilePictureFileName = string.IsNullOrEmpty(user.ProfilePictureFileName)
-                        ? "default.png" // Fallback image if none is uploaded
+                        ? "default.png"
                         : user.ProfilePictureFileName
                 });
             }
@@ -87,10 +99,22 @@ public class AdminDashboardController : Controller
             }
         }
 
+        // Lấy hình ảnh người dùng hiện tại và gán vào ViewData
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser != null)
+        {
+            var profilePicture = string.IsNullOrEmpty(currentUser.ProfilePictureFileName)
+                ? "default.png"
+                : currentUser.ProfilePictureFileName;
+
+            ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+        }
+
         var viewModel = new AdminDashboardViewModel
         {
             Customers = customerData,
-            Managers = managerData
+            Managers = managerData,
+            Admins = adminData
         };
 
         return View(viewModel);
@@ -98,37 +122,21 @@ public class AdminDashboardController : Controller
 
 
 
-    // GET: /Account/Details
-    public async Task<IActionResult> Details(string id)
-    {
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        var userRoles = await _userManager.GetRolesAsync(user);
-
-        var userDetails = new UserViewModel
-        {
-            Id = user.Id,
-            Email = user.Email,
-            EmailConfirmed = user.EmailConfirmed,
-            PasswordHash = user.PasswordHash,
-            Roles = userRoles,
-        };
-
-        return View(userDetails);
-    }
-
     // GET: /Account/Edit
     public async Task<IActionResult> Edit(string id)
     {
+
         var user = await _userManager.FindByIdAsync(id);
         if (user == null)
         {
             return NotFound();
         }
+
+        var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                ? "default.png" // Hình ảnh mặc định
+                : user.ProfilePictureFileName;
+
+        ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
 
         var userRoles = await _userManager.GetRolesAsync(user);
 
@@ -137,6 +145,8 @@ public class AdminDashboardController : Controller
             .Where(role => role.Name != "Guest") // Loại bỏ vai trò "Guest"
             .Select(r => r.Name)
             .ToList();
+
+
 
         var model = new UserViewModel
         {
@@ -217,7 +227,6 @@ public class AdminDashboardController : Controller
         }
     }
 
-    // POST: /Account/Delete
     // GET: /Account/Delete
     public async Task<IActionResult> Delete(string id)
     {
@@ -226,7 +235,11 @@ public class AdminDashboardController : Controller
         {
             return NotFound();
         }
+        var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                ? "default.png" // Hình ảnh mặc định
+                : user.ProfilePictureFileName;
 
+        ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
         var userDetails = new UserViewModel
         {
             Id = user.Id,

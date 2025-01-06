@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Booking Manager";
 
-    Layout = "~/Views/Shared/BookingLayout.cshtml";
+    Layout = "~/Views/Shared/HotelsLayout.cshtml";
 }
 
 <h1 class="text-center">Booking Manager</h1>
@@ -38,7 +38,6 @@
                                     <td>@item.TotalPrice.ToString("C")</td>
                                     <td>@item.Status</td>
                                     <td>
-                                        <a asp-action="Details" asp-route-id="@item.BookingID" class="btn btn-info">Details</a>
                                         <a asp-action="Delete" asp-route-id="@item.BookingID" class="btn btn-danger">Delete</a>
                                     </td>
                                 </tr>

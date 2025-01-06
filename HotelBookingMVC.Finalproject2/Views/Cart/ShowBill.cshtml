@@ -9,16 +9,18 @@
         <div class="checkoutLayout pb-4 d-xl-flex justify-content-around d-md-block">
             <!-- Product List Section -->
             <div class="returnCart w-100 p-xl-5">
-                <h1>List Product in Cart</h1>
+                <h1>List of Products in Cart</h1>
                 <div class="list">
                     @foreach (var item in Model.CartItems)
                     {
-                        <div class="item d-flex align-items-center justify-content-between mb-4 p-3 rounded shadow-sm bg-white">
+                        <div class=" mb-4 p-3 rounded shadow-sm bg-white item_bill" data-cart-item-id="@item.CartItemID">
                             <!-- Product Image -->
-                            <img src="@Url.Content("~/media/room/img/" + item.FilePath)" alt="Room Image" class="room-image">
-
+                            <div class="d-flex justify-content-center mb-2">
+                                <img src="@Url.Content("~/media/room/img/" + item.FilePath)" alt="Room Image" class="room-image ">
+                            </div>
+                            <br />
                             <!-- Product Info -->
-                            <div class="info ms-4">
+                            <div class="info text-center">
                                 <div class="name fw-bold">Room Number: @item.RoomNumber</div>
                                 <div class="price text-muted">@item.Price.ToString("C")/@item.Quantity ROOM</div>
                                 <div class="dates mt-2">
@@ -26,15 +28,17 @@
                                     <span class="d-block"><strong>Check-Out:</strong> @item.CheckOutDate.ToString("yyyy-MM-dd")</span>
                                 </div>
                             </div>
-
-                            <!-- Total Price for Item -->
-                            <div class="returnPrice fw-bold text-end">
-                                $@(item.Price * item.Quantity)
+                            <!-- Remove Item Button -->
+                            <div class="d-flex justify-content-center">
+                                <button type="button" class="btn btn-danger remove-item ">Remove</button>
                             </div>
                         </div>
+
                     }
                 </div>
             </div>
+
+
             <!-- Billing Information Section -->
             <div class="right w-100">
                 <h1>Billing Information</h1>
@@ -50,8 +54,8 @@
                         <input type="text" id="LastName" name="LastName" class="form-control" value="@Model.LastName" required />
                     </div>
                     <div class="form-group">
-                        <label for="Phone">Phone</label>
-                        <input type="tel" id="Phone" name="Phone" class="form-control" value="@Model.Phone" required />
+                        <label for="Phone">PhoneNumber</label>
+                        <input type="tel" id="Phone" name="PhoneNumber" class="form-control" value="@Model.PhoneNumber" required />
                     </div>
                     <div class="form-group">
                         <label for="Email">Email</label>
@@ -77,17 +81,9 @@
                         <label for="Zip">Zip Code</label>
                         <input type="text" id="Zip" name="Zip" class="form-control" value="@Model.Zip" required />
                     </div>
-                    <div class="form-check">
-                        <input type="checkbox" id="IsShippingSameAsBilling" name="IsShippingSameAsBilling" class="form-check-input" @(Model.IsShippingSameAsBilling ? "checked" : "") />
-                        <label for="IsShippingSameAsBilling" class="form-check-label">Shipping address is the same as billing</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" id="SaveInfoForNextTime" name="SaveInfoForNextTime" class="form-check-input" @(Model.SaveInfoForNextTime ? "checked" : "") />
-                        <label for="SaveInfoForNextTime" class="form-check-label">Save this information for next time</label>
-                    </div>
-
-                  
-
+                    
+                    <!-- Total Price for Item -->
+                    <p style="font-size: 30px; font-weight: bold">Total: <span id="total">@Model.Total.ToString("C") </span></p>
                     <!-- Button to trigger payment modal -->
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">
                         Proceed to Payment
@@ -131,13 +127,16 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="confirmPayment">Confirm Payment</button>
+                <div id="loadingSpinner" class="spinner-border text-primary ms-3" role="status" style="display: none;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
         $(document).ready(function () {
             $('#confirmPayment').on('click', function (event) {
                 event.preventDefault();
@@ -182,6 +181,7 @@
                     expirationDate: expirationDate,
                     cvv: cvv
                 };
+                $('#loadingSpinner').show();
 
                 $.ajax({
                     url: '@Url.Action("ProcessPayment", "Cart")',
@@ -196,7 +196,7 @@
                     success: function (response) {
                         if (response.success) {
                             alert(response.message);
-                            window.location.href = '/Booking/Confirmation';
+                            window.location.href = '/Bookings/Confirmation';
                         } else {
                             alert(response.message);
                         }
@@ -207,5 +207,72 @@
                 });
             });
         });
-    </script>
-}
+
+            $(document).ready(function () {
+        // Remove item from cart via AJAX
+        $(".remove-item").on("click", function () {
+            var cartItemId = $(this).closest('.item_bill').data("cart-item-id");
+
+            $.ajax({
+                url: '@Url.Action("RemoveFromCart", "Cart")',
+                type: 'POST',
+                data: { cartItemId: cartItemId },
+                success: function (response) {
+                    if (response.success) {
+                        // Remove the item from the list
+                        $(".item_bill[data-cart-item-id='" + cartItemId + "']").remove();
+                        alert(response.message);
+
+                        // Reload the page after successful removal
+                        location.reload();  // This will reload the page
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert("Error removing item from cart.");
+                }
+            });
+        });
+    });
+
+
+        //     Apply discount via AJAX
+        //     $("#applyDiscountBtn").on("click", function () {
+        //         var promotionCode = $("#promotionCode").val();
+
+        //         $.ajax({
+        //             url: '@Url.Action("ValidatePromotion", "Promotions")',
+        //             type: 'POST',
+        //             data: { code: promotionCode },
+        //             success: function (response) {
+        //                 if (response.success) {
+        //                     Apply discount
+        //                     alert("Discount applied: " + response.discountAmount.toFixed(2));
+        //                     Update discount display
+        //                     Additional logic for updating the UI here
+        //                 } else {
+        //                     alert(response.message);
+        //                 }
+        //             },
+        //             error: function () {
+        //                 alert("Error applying discount.");
+        //             }
+        //         });
+        //     });
+        // });
+            function updateTotal() {
+            // Đọc và làm sạch dữ liệu từ giao diện
+            var subTotal = parseFloat($('#subTotal').text().replace(/[^0-9.-]+/g, '')) || 0;
+            var discount = parseFloat($('#discount').text().replace(/[^0-9.-]+/g, '').replace('-', '')) || 0;
+            var shipping = parseFloat($('#shipping').text().replace(/[^0-9.-]+/g, '')) || 0;
+            var tax = parseFloat($('#tax').text().replace(/[^0-9.-]+/g, '')) || 0;
+
+            // Tính toán tổng
+            var total = subTotal - discount + shipping + tax;
+
+            // Cập nhật giao diện
+            $('#total').text("$" + total.toFixed(2));
+        }
+</script>
+

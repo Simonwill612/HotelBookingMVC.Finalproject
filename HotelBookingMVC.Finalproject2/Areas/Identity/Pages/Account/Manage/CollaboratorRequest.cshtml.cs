@@ -104,7 +104,8 @@ namespace _1640WebDevUMC.Areas.Identity.Pages.Account.Manage
                 <p>Email: {Email}</p>
                 <p>Phone Number: {Phone}</p>
                 <p>Reason: {Reason}</p>
-                <p>Address: {Address}</p>";
+                <p>Address: {Address}</p>
+                <p>Address2: {Address2}</p>";
 
             // Send email to all admins
             foreach (var adminEmail in adminEmails)
@@ -113,7 +114,7 @@ namespace _1640WebDevUMC.Areas.Identity.Pages.Account.Manage
             }
 
             TempData["SuccessMessage"] = "Your request has been successfully submitted!";
-            return RedirectToPage("./Index");
+            return RedirectToPage("./CollaboratorRequest");
         }
     }
 }

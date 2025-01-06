@@ -2,128 +2,165 @@
 
 <h2>Shopping Cart</h2>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Room Number</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Check-In Date</th>
-            <th>Check-Out Date</th>
-            <th>Total</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.CartItems)
-        {
-            <tr>
-                <td>@item.RoomNumber</td>
-                <td>@item.Price.ToString("C")</td>
-                <td>
-                    <input type="number" value="@item.Quantity" data-id="@item.CartItemID" class="quantity-input" min="1" aria-label="Quantity for @item.RoomNumber" />
-                </td>
-                <td>@item.CheckInDate.ToShortDateString()</td>
-                <td>@item.CheckOutDate.ToShortDateString()</td>
-                <td>@(item.Price * item.Quantity)</td>
-                <td>
-                    <button class="btn btn-danger remove-item" data-id="@item.CartItemID">Remove</button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+
+<div class="container-fluid pt-4 px-4">
+        <div class="col-12">
+            <div class=" text-center rounded p-4">
+                <div class="table-responsive">
+
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Room Number</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Check-In Date</th>
+                                <th scope="col">Check-Out Date</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.CartItems)
+                            {
+                                <tr data-cart-item-id="@item.CartItemID">
+                                    <td>@item.RoomNumber</td>
+                                    <td>@item.Price.ToString("C")</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.CheckInDate.ToShortDateString()</td>
+                                    <td>@item.CheckOutDate.ToShortDateString()</td>
+                                    <td>@(item.Price * item.Quantity)</td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger remove-item">Remove</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+</div>
 
 <!-- Discount Code Section -->
 <div class="form-group">
-    <label for="promotionCode">Discount Code</label>
-    <input type="text" id="promotionCode" class="form-control" placeholder="Enter discount code" />
-    <button type="button" id="applyPromotion" class="btn btn-success mt-2">Apply Discount</button>
+    <form id="discountForm" method="post">
+        <label for="promotionCode" class="label_style">Discount Code</label>
+        <input type="text" id="promotionCode" name="code" class="form-control" placeholder="Enter discount code" />
+        <input type="hidden" name="hotelId" value="@Model.CartItems.FirstOrDefault()?.HotelID" />
+        <button type="button" class="btn btn-success mt-2" id="applyDiscountBtn">Apply Discount</button>
+    </form>
 </div>
+
 <!-- Example subtotal, discount, and total fields in your view -->
 <div>
     <p>Subtotal: <span id="subTotal">@Model.Subtotal.ToString("C")</span></p>
     <p>Discount: <span id="discount">-$@Model.Discount.ToString("C")</span></p>
     <p>Shipping: <span id="shipping">@Model.Shipping.ToString("C")</span></p>
     <p>Tax: <span id="tax">@Model.Tax.ToString("C")</span></p>
-    <p>Total: <span id="total">@Model.Total</span></p>
+    <p>Total: <span id="total">@Model.Total.ToString("C")</span></p>
 </div>
 
 <!-- Proceed to Checkout Button -->
-<a href="@Url.Action("ShowBill", "Cart")" class="btn btn-primary">Proceed to Checkout</a>
+<button id="proceedToCheckout" class="btn btn-primary">Proceed to Checkout</button>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Remove item from cart via AJAX
+        $(".remove-item").on("click", function () {
+            var cartItemId = $(this).closest('tr').data("cart-item-id");
 
-@section Scripts {
-    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Update cart item quantity
-            $('.quantity-input').on('change', function() {
-                var quantity = $(this).val();
-                var cartItemId = $(this).data('id');
+            $.ajax({
+                url: '@Url.Action("RemoveFromCart", "Cart")',
+                type: 'POST',
+                data: { cartItemId: cartItemId },
+                success: function (response) {
+                    if (response.success) {
+                        // Remove the item from the table
+                        $("tr[data-cart-item-id='" + cartItemId + "']").remove();
+                        alert(response.message);
 
-                $.ajax({
-                    url: '@Url.Action("UpdateCart", "Cart")',
-                    type: 'POST',
-                    data: { cartItemId: cartItemId, quantity: quantity },
-                    success: function(response) {
-                        if (response.success) {
-                            location.reload(); // Reload the page to reflect the updated cart
-                        } else {
-                            alert(response.message);
-                        }
+                        // Update total after removal
+                        updateTotal();
+                    } else {
+                        alert(response.message);
                     }
-                });
-            });
-
-            // Remove item from cart
-            $('.remove-item').on('click', function() {
-                var cartItemId = $(this).data('id');
-
-                $.ajax({
-                    url: '@Url.Action("RemoveFromCart", "Cart")',
-                    type: 'POST',
-                    data: { cartItemId: cartItemId },
-                    success: function(response) {
-                        if (response.success) {
-                            location.reload(); // Reload the page to reflect the updated cart
-                        } else {
-                            alert(response.message);
-                        }
-                    }
-                });
-            });
-
-            // Apply promotion code
-            $('#applyPromotion').on('click', function() {
-                var code = $('#promotionCode').val();
-                var hotelId = '@Model.HotelID'; // Ensure HotelID is sent
-
-                $.ajax({
-                    url: '@Url.Action("ValidatePromotion", "Promotions")',
-                    type: 'POST',
-                    data: { code: code, hotelId: hotelId }, // Include hotelId in the request
-                    success: function(response) {
-                        if (response.success) {
-                            alert('Promotion applied! Discount Amount: ' + response.discountAmount.toFixed(2));
-
-                            // Cập nhật thông tin hiển thị
-                            $('#discount').text('-$' + response.discountAmount.toFixed(2));
-
-                            // Tính toán và cập nhật tổng mới
-                            var currentTotal = parseFloat($('#total').text().replace('$', '').replace(',', '')) || 0;
-                            var newTotal = currentTotal - response.discountAmount;
-                            $('#total').text('$' + newTotal.toFixed(2));
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function() {
-                        alert('An error occurred while applying the promotion.');
-                    }
-                });
+                },
+                error: function () {
+                    alert("Error removing item from cart.");
+                }
             });
         });
-    </script>
-}
 
+            // Apply Discount Button
+    $("#applyDiscountBtn").on("click", function () {
+        var promotionCode = $("#promotionCode").val();  // Get the promotion code input
+        var hotelId = $("input[name='hotelId']").val();  // Get the hotelId from hidden field or input
+
+        // Ensure that the promotion code and hotel ID are provided
+        if (promotionCode === "" || hotelId === "") {
+            alert("Please enter a promotion code and select a hotel.");
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("ValidatePromotion", "Promotions")',  // The controller action for validation
+            type: 'POST',
+            data: {
+                code: promotionCode,  // The promotion code
+                hotelId: hotelId      // The hotel ID to validate against
+            },
+            success: function (response) {
+                if (response.success) {
+                    // If successful, alert and update the discount amount
+                    alert("Discount applied: " + response.discountAmount.toFixed(2));
+                    $('#discount').text("-" + response.discountAmount.toFixed(2));
+
+                    // Update total amount after discount is applied
+                    updateTotal();
+                } else {
+                    // If the promotion code is not valid for the selected hotel, show the error message
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                alert("Error applying discount. Please try again later.");
+            }
+        });
+    });
+        // Proceed to Checkout Button
+        $("#proceedToCheckout").on("click", function () {
+            // Lấy giá trị từ các trường hiển thị
+            var subTotal = parseFloat($('#subTotal').text().replace(/[^0-9.-]+/g, '')) || 0;
+            var discount = parseFloat($('#discount').text().replace(/[^0-9.-]+/g, '').replace('-', '')) || 0;
+            var shipping = parseFloat($('#shipping').text().replace(/[^0-9.-]+/g, '')) || 0;
+            var tax = parseFloat($('#tax').text().replace(/[^0-9.-]+/g, '')) || 0;
+            var total = subTotal + discount + shipping + tax;
+
+            // Tạo URL cho ShowBill với các tham số cần thiết
+            var url = '@Url.Action("ShowBill", "Cart")'
+                + '?discountCode=' + $('#promotionCode').val()
+                + '&subTotal=' + subTotal
+                + '&discount=' + discount
+                + '&shipping=' + shipping
+                + '&tax=' + tax
+                + '&total=' + total;
+
+            // Chuyển hướng đến trang ShowBill với các tham số
+            window.location.href = url;
+        });
+
+        // Update Total Function
+        function updateTotal() {
+            var subTotal = parseFloat($('#subTotal').text().replace(/[^0-9.-]+/g, '')) || 0;
+            var discount = parseFloat($('#discount').text().replace(/[^0-9.-]+/g, '').replace('-', '')) || 0;
+            var shipping = parseFloat($('#shipping').text().replace(/[^0-9.-]+/g, '')) || 0;
+            var tax = parseFloat($('#tax').text().replace(/[^0-9.-]+/g, '')) || 0;
+
+            var total = subTotal - discount + shipping + tax;
+            $('#total').text("$" + total.toFixed(2));
+        }
+    });
+</script>
 

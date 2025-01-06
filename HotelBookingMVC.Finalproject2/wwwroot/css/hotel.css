@@ -58,3 +58,8 @@
 .carousel_nav a {
   color: #189242;
 }
+
+.dark .card {
+    background-color: #212020 !important;
+    color: white;
+}

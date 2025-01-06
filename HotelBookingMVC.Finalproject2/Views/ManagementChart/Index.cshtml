@@ -3,7 +3,7 @@
 
 @{
 
-    Layout = "~/Views/Shared/HotelsLayout.cshtml";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -57,7 +57,7 @@
 
                     // Biểu đồ Hotels
                     const hotelConfig = {
-                        type: 'bar', // Biểu đồ cột
+                        type: 'line', // Biểu đồ cột
                         data: data.hotels,
                         options: {
                             responsive: true,
@@ -75,7 +75,7 @@
 
                     // Biểu đồ Customers
                     const customerConfig = {
-                        type: 'pie', // Biểu đồ tròn
+                        type: 'line', // Biểu đồ tròn
                         data: data.customers,
                         options: {
                             responsive: true,
@@ -93,7 +93,7 @@
 
                     // Biểu đồ Bookings
                     const bookingConfig = {
-                        type: 'line', // Biểu đồ đường
+                        type: 'bar', // Biểu đồ đường
                         data: data.bookings,
                         options: {
                             responsive: true,

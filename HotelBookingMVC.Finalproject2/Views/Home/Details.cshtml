@@ -59,6 +59,7 @@
                         <p><strong>Address:</strong> @ViewBag.Hotel.Address, @ViewBag.Hotel.City, @ViewBag.Hotel.State, @ViewBag.Hotel.ZipCode</p>
                         <p><strong>Phone:</strong> @ViewBag.Hotel.PhoneNumber</p>
                         <p><strong>Email:</strong> @ViewBag.Hotel.Email</p>
+                        <p><strong>Description:</strong> @ViewBag.Hotel.Description</p>
 
                     </div>
                 </div>
@@ -68,61 +69,68 @@
 
 
     <!-- Room Details Table -->
-    <h2 class="mt-5">Rooms</h2>
-    <div class="table_content my-2">
-        <table class="w-100">
-            <p><strong>Available Rooms Today:</strong> @ViewBag.AvailableRooms</p>
-            <thead>
-                <tr>
-                    <th>Room Number</th>
-                    <th>Type</th>
-                    <th>Price Per Night</th>
-                    <th>Description</th>
-                    <th>Availability</th>
-                    <th>Media</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-
-                @foreach (var room in ViewBag.Rooms)
-                {
-                    <tr>
-                        <td>@room.RoomNumber</td>
-                        <td>@room.Type</td>
-                        <td>@room.PricePerNight</td>
-                        <td>@room.Description</td>
-                        <td>@(room.Availability ? "Available" : "Not Available")</td>
-                        <td>
-                            @if (room.Media != null)
-                            {
-                                <div>
-                                    @foreach (var media in room.Media)
-                                    {
-                                        if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image)
-                                        {
-                                            <img src="~/media/room/img/@media.FileName" alt="@media.FileName" style="max-width: 100px;" />
-                                        }
-                                        else if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Video)
-                                        {
-                                            <video controls style="max-width: 200px;">
-                                                <source src="~/media/room/img/@media.FileName" type="video/mp4" />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        }
-                                    }
-                                </div>
-                            }
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-primary" onclick="openBookingModal('@room.RoomID', '@room.PricePerNight')">Add to Cart</button>
-
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="container-fluid pt-4 px-4">
+        <div class="row g-4">
+            <div class="col-12">
+                    <h2 class="mt-5">Rooms</h2>
+                    <p><strong>Available Rooms Today:</strong> @ViewBag.AvailableRooms</p>
+                    <div class="table-responsive">
+                        <table class="table text-start align-middle table-bordered table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Room Number</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Price Per Night</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Availability</th>
+                                    <th scope="col">Media</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var room in ViewBag.Rooms)
+                                {
+                                    <tr>
+                                        <td>@room.RoomNumber</td>
+                                        <td>@room.Type</td>
+                                        <td>@room.PricePerNight.ToString("C")</td>
+                                        <td>@room.Description</td>
+                                        <td>@(room.Availability ? "Available" : "Not Available")</td>
+                                        <td>
+                                            @if (room.Media != null)
+                                            {
+                                                <div>
+                                                    @foreach (var media in room.Media)
+                                                    {
+                                                        if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Image)
+                                                        {
+                                                            <img src="~/media/room/img/@media.FileName" alt="@media.FileName" style="width: 100px; height: auto;" class="img-thumbnail" />
+                                                        }
+                                                        else if (media.MediaType == HotelBookingMVC.Finalproject2.Data.Entities.MediaType.Video)
+                                                        {
+                                                            <div style="width: 200px; height: auto; overflow: hidden;">
+                                                                <video controls style="width: 100%; height: auto;">
+                                                                    <source src="~/media/room/video/@media.FileName" type="video/mp4" />
+                                                                    Your browser does not support the video tag.
+                                                                </video>
+                                                            </div>
+                                                        }
+                                                    }
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary" onclick="openBookingModal('@room.RoomID', '@room.PricePerNight')">Add</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+        </div>
     </div>
+
 
     <!-- Feedback Section -->
     @await Html.PartialAsync("_CreateFeedbackPartial", new FeedbackViewModel
@@ -181,9 +189,7 @@
         <div class="modal-content" id="modal_cart">
             <div class="modal-header">
                 <h5 class="modal-title" id="bookingModalLabel">Book Room</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+               
             </div>
 
             <div class="modal-body">
@@ -198,12 +204,10 @@
                     </div>
                     <input type="hidden" id="room-id" name="RoomID" />
                     <input type="hidden" id="price" name="Price" />
-                    <button type="button" class="btn btn-primary" onclick="addToCart()">Add to Cart</button>
+                    <button type="button" class="btn btn-primary mt-2" onclick="addToCart()">Add to cart </button>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
+         
         </div>
     </div>
 </div>

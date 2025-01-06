@@ -6,6 +6,7 @@
     var selectedStates = ViewContext.HttpContext.Request.Query["selectedStates"];
 }
 
+
 <section class="carousel_nav">
     <div class="container">
         <div class="carousel_content">
@@ -15,7 +16,7 @@
     </div>
 </section>
 
-<div class="filter">
+<div class="filter container">
     <nav class="navbar bg-body-tertiary">
         <div class="container-fluid">
             <button class="navbar-toggler filter_toggle"
@@ -28,24 +29,49 @@
                 <span class=""><i class="fa-solid fa-filter"></i></span>
             </button>
             <div class="collapse navbar-collapse" id="filter">
-                <form method="get" action="@Url.Action("Hotels", "Home")" class="d-flex align-items-center gap-3 flex-wrap">
-                    <!-- Ghi chú -->
-                    <span class="me-3 fw-bold">Filter by State:</span>
-
-                    @foreach (var state in ViewBag.States as List<string>)
-                    {
-                        <div class="form-check me-3">
-                            <input class="form-check-input"
-                                   type="checkbox"
-                                   name="selectedStates"
-                                   value="@state"
-                                   id="state_@state"
-                            @(selectedStates.Contains(state) ? "checked" : "") />
-                            <label class="form-check-label" for="state_@state">
-                                @state
-                            </label>
+                <form method="get" action="@Url.Action("Hotels", "Home")" class="d-flex flex-column gap-3">
+                    <!-- Lọc theo city -->
+                    <div>
+                        <span class="me-3 fw-bold">Filter by City:</span>
+                        <div class="d-flex flex-wrap gap-3">
+                            @foreach (var city in ViewBag.Cities as List<string>)
+                            {
+                                <div class="form-check me-3">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="selectedCities"
+                                           value="@city"
+                                           id="city_@city"
+                                    @(selectedStates.Contains(city) ? "checked" : "") />
+                                    <label class="form-check-label" for="city_@city">
+                                        @city
+                                    </label>
+                                </div>
+                            }
                         </div>
-                    }
+                    </div>
+
+                    <!-- Lọc theo state -->
+                    <div>
+                        <span class="me-3 fw-bold">Filter by State:</span>
+                        <div class="d-flex flex-wrap gap-3">
+                            @foreach (var state in ViewBag.States as List<string>)
+                            {
+                                <div class="form-check me-3">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="selectedStates"
+                                           value="@state"
+                                           id="state_@state"
+                                    @(selectedStates.Contains(state) ? "checked" : "") />
+                                    <label class="form-check-label" for="state_@state">
+                                        @state
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-success btn-sm">Apply Filter</button>
                 </form>
             </div>
@@ -59,7 +85,7 @@
             @foreach (var hotel in Model)
             {
                 <div class="col-md-4">
-                    <div class="card shadow-sm rounded">
+                    <div class="card shadow-sm rounded card_style">
                         <!-- Check and display first media -->
                         @if (hotel.Media != null && hotel.Media.Any())
                         {
@@ -124,4 +150,3 @@
         </ul>
     </nav>
 </div>
-

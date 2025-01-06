@@ -29,6 +29,15 @@ namespace HotelBookingMVC.Finalproject2.Controllers
         // GET: Feedbacks
         public async Task<IActionResult> Index()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var profilePicture = string.IsNullOrEmpty(user.ProfilePictureFileName)
+                    ? "default.png" // Hình ảnh mặc định
+                    : user.ProfilePictureFileName;
+
+                ViewData["UserProfilePicture"] = $"/uploads/profile_pictures/{profilePicture}";
+            }
             var feedbacks = await _context.Feedbacks.Include(f => f.Hotel).ToListAsync();
 
             var feedbackViewModels = feedbacks.Select(async feedback => new FeedbackViewModel
